@@ -208,7 +208,7 @@ export default function App() {
                 </div>
                 <Link
                   href={`/cabin/${cabin.id}`}
-                  className="text-blue-500 font-bold bg-[#202020] px-4 py-2.5 rounded-3xl"
+                  className="text-blue-500 font-bold bg-[#242b33] px-4 py-2.5 rounded-3xl"
                 >
                   Open
                 </Link>
