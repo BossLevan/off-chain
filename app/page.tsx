@@ -10,7 +10,7 @@ import { useAccount } from "wagmi";
 import Check from "./svg/Check";
 import Link from "next/link";
 import Image from "next/image";
-import { Flower } from "lucide-react";
+import { ArrowUp, ArrowUpCircle, Flower } from "lucide-react";
 import BottomNav from "./components/BottomNav";
 import UpArrow from "./components/UpArrow";
 
@@ -130,10 +130,10 @@ export default function App() {
         <div className="safe-top" />
         <div className="max-w-[480px] mx-auto px-4 py-5 flex justify-between items-center">
           <div className="flex items-center space-x-2">
-            <Flower className="w-8 h-8 text-orange-500" />
+            <ArrowUpCircle className="w-6 h-6 text-orange-500" />
             <span className="text-xl font-medium">
               Off-Chain
-              <span className="text-[1.0em] align-[0.4em] ml-0.5">™</span>
+              <span className="text-[1.0em] align-[0.25em] ml-0.5">™</span>
             </span>
           </div>
           <div className="flex space-x-4">
@@ -161,19 +161,28 @@ export default function App() {
           </div>
 
           <div className="flex space-x-2 mb-6">
-            {["new", "trending", "featured"].map((filter) => (
-              <button
-                key={filter}
-                onClick={() => setActiveFilter(filter)}
-                className={`px-4 py-2 rounded-xl font-medium transition-colors ${
-                  activeFilter === filter
-                    ? "bg-zinc-900 text-orange-500 border border-orange-500"
-                    : "bg-zinc-900 text-gray-400 border border-transparent"
-                }`}
-              >
-                {filter.charAt(0).toUpperCase() + filter.slice(1)}
-              </button>
-            ))}
+            {["new", "trending", "featured"].map((filter) => {
+              const isActive = activeFilter === filter;
+              return (
+                <div
+                  key={filter}
+                  onClick={() => setActiveFilter(filter)}
+                  className={`rounded-xl p-[1px] cursor-pointer transition-all ${
+                    isActive
+                      ? "bg-gradient-to-br from-orange-500 to-pink-500"
+                      : "bg-transparent"
+                  }`}
+                >
+                  <button
+                    className={`px-4 py-2 w-full rounded-[calc(0.75rem-1px)] font-medium bg-zinc-900 transition-colors ${
+                      isActive ? "text-orange-300" : "text-gray-400"
+                    }`}
+                  >
+                    {filter.charAt(0).toUpperCase() + filter.slice(1)}
+                  </button>
+                </div>
+              );
+            })}
           </div>
 
           <div className="space-y-4">
@@ -195,7 +204,7 @@ export default function App() {
                     </div>
                   </div>
                   <div className="flex flex-col justify-between py-[2px]">
-                    <div className="text-[13px] font-header font-bold text-[#6B6B6B]">
+                    <div className="text-[12px] font-header font-extralight text-blue-400">
                       {cabin.marketCap} MARKET CAP
                     </div>
                     <div className="font-bold text-[20px] mt-0.3">
@@ -208,7 +217,7 @@ export default function App() {
                 </div>
                 <Link
                   href={`/cabin/${cabin.id}`}
-                  className="text-blue-500 font-bold bg-[#242b33] px-4 py-2.5 rounded-3xl"
+                  className="text-blue-500 font-bold bg-[#1d2228] px-4 py-2.5 rounded-3xl"
                 >
                   Open
                 </Link>

@@ -17,9 +17,6 @@ import {
   Sparkle,
   X,
   ImageIcon,
-  BarChart3,
-  PieChart,
-  Users,
   ChevronsUp,
   Heart,
 } from "lucide-react";
@@ -34,7 +31,7 @@ export default function CabinDetail() {
 
   const cabin = {
     id: params.id,
-    name: "Ghibli",
+    name: "Ghibli x AMBUSH",
     description: "Convert your Images to Ghibli Polaroids.",
     image:
       "https://images.unsplash.com/photo-1495121553079-4c61bcce1894?auto=format&fit=crop&q=80&w=100&h=100",
@@ -103,7 +100,7 @@ export default function CabinDetail() {
               alt={cabin.name}
               width={148}
               height={148}
-              className="rounded-2xl object-cover"
+              className="rounded-3xl object-cover"
             />
             <div className="flex-1">
               <h1 className="text-2xl font-bold mb-2">{cabin.name}</h1>
@@ -214,6 +211,10 @@ export default function CabinDetail() {
                 </div>
               </button>
             )}
+            <p className="mt-1 text-sm text-zinc-400 text-center">
+              Join <span className="font-semibold text-blue-500">34,554+ </span>{" "}
+              others to generate in this aesthetic
+            </p>
           </div>
 
           {/* Gallery */}
