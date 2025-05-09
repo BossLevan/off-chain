@@ -5,6 +5,7 @@ import type React from "react";
 import { useState, useRef } from "react";
 import Link from "next/link";
 import { ArrowLeft, Plus, X, AlertCircle } from "lucide-react";
+import { fileToBase64 } from "@/lib/utils/base64";
 
 interface FormData {
   name: string;
@@ -49,8 +50,7 @@ export default function CreateCabin() {
         return "";
       case "ticker":
         if (!value) return "Ticker is required";
-        if (!/^[A-Z0-9]+$/.test(value))
-          return "Ticker must be uppercase letters and numbers only";
+
         if (value.length < 3) return "Ticker must be at least 3 characters";
         if (value.length > 10) return "Ticker must be less than 10 characters";
         return "";
@@ -63,7 +63,7 @@ export default function CreateCabin() {
         return "";
       case "prompt":
         if (!value) return "Prompt is required";
-        if (value.length < 20) return "Prompt must be at least 20 characters";
+        // if (value.length < 20) return "Prompt must be at least 20 characters";
         if (value.length > 500)
           return "Prompt must be less than 500 characters";
         return "";
@@ -177,24 +177,64 @@ export default function CreateCabin() {
 
     const submitData = new FormData();
     submitData.append("name", formData.name);
-    submitData.append("ticker", formData.ticker.toUpperCase());
+    submitData.append("symbol", formData.ticker.toUpperCase());
     submitData.append("description", formData.description);
     submitData.append("prompt", formData.prompt);
 
-    if (formData.mainImage) {
-      submitData.append("mainImage", formData.mainImage);
-    }
-
-    formData.sampleImages.forEach((image, index) => {
-      submitData.append(`sampleImage${index}`, image);
+    formData.sampleImages.forEach((image) => {
+      submitData.append("sampleImages", image); // use same key for all
     });
 
+    //**********REFACTOR THIS INTO THE API.TS FILE*************** */
     try {
-      // const response = await fetch('your-api-endpoint', {
-      //   method: 'POST',
-      //   body: submitData
+      //convert header image to base64
+      // const base64Image = await fileToBase64(formData.mainImage as Blob);
+      // //upload header image to ipfs
+      // const imageResponse = await fetch("/api/image-upload", {
+      //   method: "POST",
+      //   body: JSON.stringify(base64Image),
+      //   // ❌ Do NOT set 'Content-Type', the browser handles this automatically.
       // });
-      console.log("Form data ready for submission:", submitData);
+      // const data = await imageResponse.json();
+      // let imageHash: string;
+      // if (imageResponse.ok) {
+      //   console.log("Image uploaded:", data.hash);
+      //   //Assign the variable the ipfs hash
+      //   imageHash = data.hash;
+      //   submitData.append("imageIpfs", imageHash);
+      // } else {
+      //   console.error("Upload failed:", data);
+      // }
+
+      //hash: QmaNd3wsqBf8pqqA2ZxvfNx6HqbiebEfJKB5GbVzvsEWhK
+
+      //Append the hash into the formdata
+
+      submitData.append(
+        "imageIpfs",
+        "QmaNd3wsqBf8pqqA2ZxvfNx6HqbiebEfJKB5GbVzvsEWhK",
+      );
+      const response = await fetch(
+        "/api/token?contract=0x1c93d155bd388241f9ab5df500d69eb529ce9583",
+        {
+          method: "GET",
+        },
+      );
+      console.log(await response.json());
+      // const response = await fetch("/api/create-token", {
+      //   method: "POST",
+      //   body: submitData,
+      //   // ❌ Do NOT set 'Content-Type', the browser handles this automatically.
+      // });
+
+      // if (!response.ok) {
+      //   const error = await response.json();
+      //   console.error("Server error:", error.error);
+      //   return;
+      // }
+
+      // const result = await response.json();
+      // console.log("Success:", result);
     } catch (error) {
       console.error("Error submitting form:", error);
     }
@@ -417,19 +457,19 @@ export default function CreateCabin() {
       <div className="sticky bottom-0 bg-black/50 backdrop-blur-lg z-10">
         <div className="max-w-[480px] mx-auto px-4 py-4">
           <div className="space-y-4">
-            <p className="text-gray-400">
+            {/* <p className="text-gray-400">
               <span className="text-green-500 mr-2">✓</span>
               You need 0.001 ETH to launch this cabin.
               <button className="text-blue-500 underline hover:text-blue-400 mx-1 inline">
                 Buy here
               </button>
               (Bal: 0.00 ETH)
-            </p>
+            </p> */}
             <button
               onClick={handleSubmit}
               className="w-full bg-blue-500 text-white py-4 rounded-full font-medium text-lg"
             >
-              Launch Cabin
+              Launch
             </button>
           </div>
         </div>

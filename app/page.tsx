@@ -18,23 +18,23 @@ import UpArrow from "./components/UpArrow";
 const cabins = [
   {
     id: 1,
-    name: "Polaroid",
-    description: "Relive your memories.",
+    name: "Ghibli Frames",
+    description: "A New Ghbili Experience",
     marketCap: "$600M",
     image:
       "https://images.unsplash.com/photo-1495121553079-4c61bcce1894?auto=format&fit=crop&q=80&w=100&h=100",
   },
   {
     id: 2,
-    name: "Disposables",
-    description: "Nostalgia Again.",
+    name: "Tyla's Hearts",
+    description: "Videos With Tyla's Hearts",
     marketCap: "$349M",
     image:
       "https://images.unsplash.com/photo-1452780212940-6f5c0d14d848?auto=format&fit=crop&q=80&w=100&h=100",
   },
   {
     id: 3,
-    name: "OOTD",
+    name: "Vogue Runway",
     description: "Your OOTD as stickers.",
     marketCap: "$123M",
     image:
@@ -42,8 +42,8 @@ const cabins = [
   },
   {
     id: 4,
-    name: "Louvre",
-    description: "A work of Art.",
+    name: "YOU",
+    description: "A day as Joe Goldberg",
     marketCap: "$20M",
     image:
       "https://images.unsplash.com/photo-1544413660-299165566b1d?auto=format&fit=crop&q=80&w=100&h=100",
@@ -157,11 +157,11 @@ export default function App() {
       <div className="flex-1 overflow-y-auto">
         <div className="w-full max-w-[480px] mx-auto px-4 pb-28">
           <div className="flex items-center justify-between my-4">
-            <h1 className="text-2xl font-bold">Coins</h1>
+            <h1 className="text-2xl font-bold">Aesthetics</h1>
           </div>
 
           <div className="flex space-x-2 mb-6">
-            {["new", "trending", "featured"].map((filter) => {
+            {["new", "upcoming", "trending"].map((filter) => {
               const isActive = activeFilter === filter;
               return (
                 <div
@@ -169,13 +169,13 @@ export default function App() {
                   onClick={() => setActiveFilter(filter)}
                   className={`rounded-xl p-[1px] cursor-pointer transition-all ${
                     isActive
-                      ? "bg-gradient-to-br from-orange-500 to-pink-500"
+                      ? "bg-gradient-to-br from-[#D500FF] via-[#04FF4F] to-[#F10509]"
                       : "bg-transparent"
                   }`}
                 >
                   <button
                     className={`px-4 py-2 w-full rounded-[calc(0.75rem-1px)] font-medium bg-zinc-900 transition-colors ${
-                      isActive ? "text-orange-300" : "text-gray-400"
+                      isActive ? "text-white" : "text-gray-400"
                     }`}
                   >
                     {filter.charAt(0).toUpperCase() + filter.slice(1)}
