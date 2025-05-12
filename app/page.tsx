@@ -77,21 +77,21 @@ const cabins = [
 const SCHEMA_UID =
   "0x7889a09fb295b0a0c63a3d7903c4f00f7896cca4fa64d2c1313f8547390b7d39";
 
+import { useTokens } from "@/lib/hooks/useGetTokens";
+import { Loader2 } from "lucide-react";
+import { convertIpfsToPinataUrl } from "@/lib/utils/ipfs";
+import { TokenTile } from "./components/TokenTile";
+
 export default function App() {
   const { setFrameReady, isFrameReady, context } = useMiniKit();
   const [frameAdded, setFrameAdded] = useState(false);
-
   const [activeFilter, setActiveFilter] = useState("new");
 
   const addFrame = useAddFrame();
   const openUrl = useOpenUrl();
   const { address } = useAccount();
 
-  // useEffect(() => {
-  //   if (!isFrameReady) {
-  //     setFrameReady();
-  //   }
-  // }, [setFrameReady, isFrameReady]);
+  const { tokens: cabins, loading, error } = useTokens();
 
   const handleAddFrame = useCallback(async () => {
     const frameAdded = await addFrame();
@@ -125,7 +125,7 @@ export default function App() {
 
   return (
     <div className="flex flex-col h-screen bg-[#0C0C0C] text-white">
-      {/* Fixed Header */}
+      {/* Header */}
       <header className="sticky top-0 bg-black z-10">
         <div className="safe-top" />
         <div className="max-w-[480px] mx-auto px-4 py-5 flex justify-between items-center">
@@ -153,7 +153,7 @@ export default function App() {
         </div>
       </header>
 
-      {/* Main scrollable content */}
+      {/* Main */}
       <div className="flex-1 overflow-y-auto">
         <div className="w-full max-w-[480px] mx-auto px-4 pb-28">
           <div className="flex items-center justify-between my-4">
@@ -185,91 +185,228 @@ export default function App() {
             })}
           </div>
 
-          <div className="space-y-4">
-            {cabins.map((cabin) => (
-              <div
-                key={cabin.id}
-                className="flex items-center justify-between bg-[#141619] rounded-[24px] p-5"
-              >
-                <div className="flex space-x-4">
-                  <div className="relative w-[80px] h-[80px]">
-                    <Image
-                      src={cabin.image || "/placeholder.svg"}
-                      alt={cabin.name}
-                      fill
-                      className="rounded-2xl object-cover"
-                    />
-                    <div className="absolute -bottom-2.5 -right-2.5 bg-[#2BBE30] rounded-full w-7 h-7 flex items-center justify-center shadow-lg border-4 border-[#161616]">
-                      <UpArrow />
-                    </div>
-                  </div>
-                  <div className="flex flex-col justify-between py-[2px]">
-                    <div className="text-[12px] font-header font-extralight text-blue-400">
-                      {cabin.marketCap} MARKET CAP
-                    </div>
-                    <div className="font-bold text-[20px] mt-0.3">
-                      {cabin.name}
-                    </div>
-                    <div className="text-[16px] font-medium text-[#AAAAAA]">
-                      {cabin.description}
-                    </div>
-                  </div>
-                </div>
-                <Link
-                  href={`/cabin/${cabin.id}`}
-                  className="text-blue-500 font-bold bg-[#1d2228] px-4 py-2.5 rounded-3xl"
-                >
-                  Open
-                </Link>
-              </div>
-            ))}
-          </div>
+          {/* Loading State */}
+          {loading && (
+            <div className="flex justify-center items-center py-20 text-gray-400">
+              <Loader2 className="animate-spin w-6 h-6 mr-2" />
+              Loading tokens...
+            </div>
+          )}
+
+          {/* Error State */}
+          {error && (
+            <div className="text-red-500 text-center py-20">
+              Error loading tokens: {error}
+            </div>
+          )}
+
+          {/* Token List */}
+          {!loading && !error && (
+            <div className="space-y-4">
+              {cabins?.map((cabin) => <TokenTile token={cabin} />)}
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Fixed Bottom Navigation */}
       <BottomNav />
     </div>
-    // <div className="flex flex-col min-h-screen sm:min-h-[820px] font-sans bg-[#E5E5E5] text-black items-center snake-dark relative">
-    //   <div className="w-screen max-w-[520px]">
-    //     <header className="mr-2 mt-1 flex justify-between">
-    //       <div className="justify-start pl-1">
-    //         {address ? (
-    //           <Identity
-    //             address={address}
-    //             schemaId={SCHEMA_UID}
-    //             className="!bg-inherit p-0 [&>div]:space-x-2"
-    //           >
-    //             <Name className="text-inherit">
-    //               <Badge
-    //                 tooltip="High Scorer"
-    //                 className="!bg-inherit high-score-badge"
-    //               />
-    //             </Name>
-    //           </Identity>
-    //         ) : (
-    //           <div className="pl-2 pt-1 text-gray-500 text-sm font-semibold">
-    //             NOT CONNECTED
-    //           </div>
-    //         )}
-    //       </div>
-    //       <div className="pr-1 justify-end">{saveFrameButton}</div>
-    //     </header>
-
-    //     <main className="font-serif">
-    //       <Snake />
-    //     </main>
-
-    //     <footer className="absolute bottom-4 flex items-center w-screen max-w-[520px] justify-center">
-    //       <button
-    //         type="button"
-    //         className="mt-4 ml-4 px-2 py-1 flex justify-start rounded-2xl font-semibold opacity-40 border border-black text-xs"
-    //         onClick={() => openUrl("https://base.org/builders/minikit")}
-    //       >
-    //         BUILT ON BASE WITH MINIKIT
-    //       </button>
-    //     </footer>
-    //   </div>
-    // </div>
   );
 }
+
+// export default function App() {
+//   const { setFrameReady, isFrameReady, context } = useMiniKit();
+//   const [frameAdded, setFrameAdded] = useState(false);
+
+//   const [activeFilter, setActiveFilter] = useState("new");
+
+//   const addFrame = useAddFrame();
+//   const openUrl = useOpenUrl();
+//   const { address } = useAccount();
+
+//   // useEffect(() => {
+//   //   if (!isFrameReady) {
+//   //     setFrameReady();
+//   //   }
+//   // }, [setFrameReady, isFrameReady]);
+
+//   const handleAddFrame = useCallback(async () => {
+//     const frameAdded = await addFrame();
+//     setFrameAdded(Boolean(frameAdded));
+//   }, [addFrame, setFrameAdded]);
+
+//   const saveFrameButton = useMemo(() => {
+//     if (context && !context.client.added) {
+//       return (
+//         <button
+//           type="button"
+//           onClick={handleAddFrame}
+//           className="cursor-pointer bg-transparent font-semibold text-sm"
+//         >
+//           + SAVE FRAME
+//         </button>
+//       );
+//     }
+
+//     if (frameAdded) {
+//       return (
+//         <div className="flex items-center space-x-1 text-sm font-semibold animate-fade-out">
+//           <Check />
+//           <span>SAVED</span>
+//         </div>
+//       );
+//     }
+
+//     return null;
+//   }, [context, handleAddFrame, frameAdded]);
+
+//   return (
+//     <div className="flex flex-col h-screen bg-[#0C0C0C] text-white">
+//       {/* Fixed Header */}
+//       <header className="sticky top-0 bg-black z-10">
+//         <div className="safe-top" />
+//         <div className="max-w-[480px] mx-auto px-4 py-5 flex justify-between items-center">
+//           <div className="flex items-center space-x-2">
+//             <ArrowUpCircle className="w-6 h-6 text-orange-500" />
+//             <span className="text-xl font-medium">
+//               Off-Chain
+//               <span className="text-[1.0em] align-[0.25em] ml-0.5">™</span>
+//             </span>
+//           </div>
+//           <div className="flex space-x-4">
+//             <Link
+//               href="/about"
+//               className="text-blue-500 font-bold bg-zinc-900 px-4 py-2.5 rounded-full"
+//             >
+//               About
+//             </Link>
+//             <Link
+//               href="/login"
+//               className="bg-blue-500 font-bold px-4 py-2.5 rounded-full"
+//             >
+//               Login
+//             </Link>
+//           </div>
+//         </div>
+//       </header>
+
+//       {/* Main scrollable content */}
+//       <div className="flex-1 overflow-y-auto">
+//         <div className="w-full max-w-[480px] mx-auto px-4 pb-28">
+//           <div className="flex items-center justify-between my-4">
+//             <h1 className="text-2xl font-bold">Aesthetics</h1>
+//           </div>
+
+//           <div className="flex space-x-2 mb-6">
+//             {["new", "upcoming", "trending"].map((filter) => {
+//               const isActive = activeFilter === filter;
+//               return (
+//                 <div
+//                   key={filter}
+//                   onClick={() => setActiveFilter(filter)}
+//                   className={`rounded-xl p-[1px] cursor-pointer transition-all ${
+//                     isActive
+//                       ? "bg-gradient-to-br from-[#D500FF] via-[#04FF4F] to-[#F10509]"
+//                       : "bg-transparent"
+//                   }`}
+//                 >
+//                   <button
+//                     className={`px-4 py-2 w-full rounded-[calc(0.75rem-1px)] font-medium bg-zinc-900 transition-colors ${
+//                       isActive ? "text-white" : "text-gray-400"
+//                     }`}
+//                   >
+//                     {filter.charAt(0).toUpperCase() + filter.slice(1)}
+//                   </button>
+//                 </div>
+//               );
+//             })}
+//           </div>
+
+//           <div className="space-y-4">
+//             {cabins.map((cabin) => (
+//               <div
+//                 key={cabin.id}
+//                 className="flex items-center justify-between bg-[#141619] rounded-[24px] p-5"
+//               >
+//                 <div className="flex space-x-4">
+//                   <div className="relative w-[80px] h-[80px]">
+//                     <Image
+//                       src={cabin.image || "/placeholder.svg"}
+//                       alt={cabin.name}
+//                       fill
+//                       className="rounded-2xl object-cover"
+//                     />
+//                     <div className="absolute -bottom-2.5 -right-2.5 bg-[#2BBE30] rounded-full w-7 h-7 flex items-center justify-center shadow-lg border-4 border-[#161616]">
+//                       <UpArrow />
+//                     </div>
+//                   </div>
+//                   <div className="flex flex-col justify-between py-[2px]">
+//                     <div className="text-[12px] font-header font-extralight text-blue-400">
+//                       {cabin.marketCap} MARKET CAP
+//                     </div>
+//                     <div className="font-bold text-[20px] mt-0.3">
+//                       {cabin.name}
+//                     </div>
+//                     <div className="text-[16px] font-medium text-[#AAAAAA]">
+//                       {cabin.description}
+//                     </div>
+//                   </div>
+//                 </div>
+//                 <Link
+//                   href={`/cabin/${cabin.id}`}
+//                   className="text-blue-500 font-bold bg-[#1d2228] px-4 py-2.5 rounded-3xl"
+//                 >
+//                   Open
+//                 </Link>
+//               </div>
+//             ))}
+//           </div>
+//         </div>
+//       </div>
+
+//       {/* Fixed Bottom Navigation */}
+//       <BottomNav />
+//     </div>
+//     // <div className="flex flex-col min-h-screen sm:min-h-[820px] font-sans bg-[#E5E5E5] text-black items-center snake-dark relative">
+//     //   <div className="w-screen max-w-[520px]">
+//     //     <header className="mr-2 mt-1 flex justify-between">
+//     //       <div className="justify-start pl-1">
+//     //         {address ? (
+//     //           <Identity
+//     //             address={address}
+//     //             schemaId={SCHEMA_UID}
+//     //             className="!bg-inherit p-0 [&>div]:space-x-2"
+//     //           >
+//     //             <Name className="text-inherit">
+//     //               <Badge
+//     //                 tooltip="High Scorer"
+//     //                 className="!bg-inherit high-score-badge"
+//     //               />
+//     //             </Name>
+//     //           </Identity>
+//     //         ) : (
+//     //           <div className="pl-2 pt-1 text-gray-500 text-sm font-semibold">
+//     //             NOT CONNECTED
+//     //           </div>
+//     //         )}
+//     //       </div>
+//     //       <div className="pr-1 justify-end">{saveFrameButton}</div>
+//     //     </header>
+
+//     //     <main className="font-serif">
+//     //       <Snake />
+//     //     </main>
+
+//     //     <footer className="absolute bottom-4 flex items-center w-screen max-w-[520px] justify-center">
+//     //       <button
+//     //         type="button"
+//     //         className="mt-4 ml-4 px-2 py-1 flex justify-start rounded-2xl font-semibold opacity-40 border border-black text-xs"
+//     //         onClick={() => openUrl("https://base.org/builders/minikit")}
+//     //       >
+//     //         BUILT ON BASE WITH MINIKIT
+//     //       </button>
+//     //     </footer>
+//     //   </div>
+//     // </div>
+//   );
+// }
