@@ -1,8 +1,14 @@
 export interface Token {
     baseURI: string;
+    id: string;
     createdAt: string;
     creator: {
       id: string;
+    };
+    collection: {
+      id: string
+      contract: string
+      tokenID: string
     };
     tokenPrice: string;
     volumeETH: string;

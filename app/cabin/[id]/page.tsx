@@ -21,6 +21,11 @@ import {
   Heart,
 } from "lucide-react";
 import SwapModal from "@/app/components/SwapModal";
+import AsyncTokenImage from "@/app/components/AsyncImage";
+import { useTokenDetails } from "@/lib/hooks/useGetToken";
+import { useTokenFirestoreDetails } from "@/lib/hooks/useGetFirestoreToken";
+import GalleryImages from "@/app/components/GalleryImages";
+import { formatDateFromTimestamp } from "@/lib/utils/formatDate";
 
 export default function CabinDetail() {
   const params = useParams();
@@ -29,27 +34,8 @@ export default function CabinDetail() {
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const cabin = {
-    id: params.id,
-    name: "Ghibli x AMBUSH",
-    description: "Convert your Images to Ghibli Polaroids.",
-    image:
-      "https://images.unsplash.com/photo-1495121553079-4c61bcce1894?auto=format&fit=crop&q=80&w=100&h=100",
-    volume: "$145K",
-    marketCap: "$109M",
-    holders: "5K",
-    dateCreated: "4/1/25",
-    ticker: "$POLAROID",
-    creator: "jesse.base.eth",
-    twitter: "@doginme",
-    requiredBalance: "12K POLAROID",
-    galleryImages: [
-      "https://images.unsplash.com/photo-1502982720700-bfff97f2ecac?auto=format&fit=crop&q=80&w=200&h=200",
-      "https://images.unsplash.com/photo-1542567455-cd733f23fbb1?auto=format&fit=crop&q=80&w=200&h=200",
-      "https://images.unsplash.com/photo-1524856949007-80db29955b17?auto=format&fit=crop&q=80&w=200&h=200",
-      "https://images.unsplash.com/photo-1554080353-321e452ccf19?auto=format&fit=crop&q=80&w=200&h=200",
-    ],
-  };
+  const id = Array.isArray(params.id) ? params.id[0] : params.id;
+  const { data: cabin, loading, error } = useTokenDetails(id);
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -70,6 +56,22 @@ export default function CabinDetail() {
     if (uploadedImage) URL.revokeObjectURL(uploadedImage);
     setUploadedImage(null);
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center bg-black/50 justify-center h-screen text-white">
+        Loading...
+      </div>
+    );
+  }
+
+  if (error || !cabin) {
+    return (
+      <div className="flex items-center bg-black/50 justify-center h-screen text-white">
+        {error || "Token not found"}
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col h-screen bg-[#0E0E0E] text-white">
@@ -95,16 +97,14 @@ export default function CabinDetail() {
         <div className="max-w-[480px] mx-auto px-4 pb-48">
           {/* Hero */}
           <div className="flex items-start space-x-4 mb-6 pt-4">
-            <Image
-              src={cabin.image || "/placeholder.svg"}
-              alt={cabin.name}
-              width={148}
-              height={148}
-              className="rounded-3xl object-cover"
+            <AsyncTokenImage
+              imageIpfsUri={cabin.baseURI}
+              alt={cabin.metadata.name}
+              size={148}
             />
             <div className="flex-1">
-              <h1 className="text-2xl font-bold mb-2">{cabin.name}</h1>
-              <p className="text-gray-400 mb-4">{cabin.description}</p>
+              <h1 className="text-2xl font-bold mb-2">{cabin.metadata.name}</h1>
+              <p className="text-gray-400 mb-4">{cabin.metadata.description}</p>
               <div className="grid grid-cols-2 gap-2">
                 <button
                   onClick={() => setIsSwapModalOpen(true)}
@@ -124,19 +124,19 @@ export default function CabinDetail() {
             {[
               {
                 label: "Volume (24h)",
-                value: cabin.volume,
+                value: `$${cabin.volumeETH}`,
                 icon: <ChevronsUp className="w-5 h-5 text-green-400" />,
               },
               {
                 label: "Market Cap",
-                value: cabin.marketCap,
+                value: `$${cabin.marketCapETH}`,
                 icon: (
                   <Sparkle className="w-5 h-5 stroke-yellow-500 fill-yellow-500" />
                 ),
               },
               {
                 label: "Patrons",
-                value: cabin.holders,
+                value: cabin.totalHolders,
                 icon: <Heart className="w-5 h-5 stroke-red-500 fill-red-500" />,
               },
             ].map((stat, i) => (
@@ -218,23 +218,7 @@ export default function CabinDetail() {
           </div>
 
           {/* Gallery */}
-          <section className="mb-8">
-            <h2 className="text-xl font-bold mb-4">Sample Images</h2>
-            <div className="overflow-x-auto pb-4 -mx-4 px-4">
-              <div className="flex space-x-3 min-w-max">
-                {cabin.galleryImages.map((img, i) => (
-                  <Image
-                    key={i}
-                    src={img || "/placeholder.svg"}
-                    alt={`Gallery ${i}`}
-                    width={160}
-                    height={160}
-                    className="rounded-2xl object-cover flex-shrink-0"
-                  />
-                ))}
-              </div>
-            </div>
-          </section>
+          <GalleryImages contract={id} />
 
           {/* Details */}
           <section className="mb-8">
@@ -244,17 +228,17 @@ export default function CabinDetail() {
                 {
                   icon: <Calendar className="w-5 h-5 text-green-500" />,
                   label: "Date Created",
-                  value: cabin.dateCreated,
+                  value: formatDateFromTimestamp(cabin.createdAt),
                 },
                 {
                   icon: <DollarSign className="w-5 h-5 text-purple-500" />,
                   label: "Ticker",
-                  value: cabin.ticker,
+                  value: cabin.metadata.symbol,
                 },
                 {
                   icon: <User className="w-5 h-5 text-orange-500" />,
                   label: "Creator",
-                  value: cabin.creator,
+                  value: "kosi.base.eth",
                 },
               ].map((item, i) => (
                 <div key={i} className="flex items-center justify-between">
@@ -277,7 +261,9 @@ export default function CabinDetail() {
                   <Twitter className="w-5 h-5 text-blue-400" />
                   <span className="text-gray-400">Twitter</span>
                 </div>
-                <span className="font-header font-medium">{cabin.twitter}</span>
+                <span className="font-header font-medium">
+                  {cabin.metadata.twitter ?? ""}
+                </span>
               </div>
             </div>
           </section>
@@ -320,6 +306,15 @@ export default function CabinDetail() {
       <SwapModal
         isOpen={isSwapModalOpen}
         onClose={() => setIsSwapModalOpen(false)}
+        token={{
+          address: cabin.id as `0x${string}`,
+          chainId: 8453,
+          decimals: 18,
+          name: cabin.metadata.name,
+          symbol: cabin.metadata.symbol,
+          image:
+            "https://dynamic-assets.coinbase.com/dbb4b4983bde81309ddab83eb598358eb44375b930b94687ebe38bc22e52c3b2125258ffb8477a5ef22e33d6bd72e32a506c391caa13af64c00e46613c3e5806/asset_icons/4113b082d21cc5fab17fc8f2d19fb996165bcce635e6900f7fc2d57c4ef33ae9.png",
+        }}
       />
     </div>
   );

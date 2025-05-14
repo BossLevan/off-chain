@@ -11,6 +11,12 @@ query getAllCollectionTokens {
         where: {creator: "0xf1a700000087c011413c21c9b357a6962aa256f9"}
       ) {
         baseURI
+        id
+        collection {
+          contract
+          id
+          tokenID
+        }
         createdAt
         creator {
           id
@@ -38,6 +44,10 @@ query getAllCollectionTokens {
         where: {creator: "0xf1a700000087c011413c21c9b357a6962aa256f9"}
       ) {
         baseURI
+        collection {
+          contract
+          tokenID
+        }
         createdAt
         creator {
           id

@@ -3,13 +3,15 @@
 import React, { useState } from "react";
 import { X, ChevronDown, ArrowDown } from "lucide-react";
 import SwapComponents from "./SwapComponent";
+import { Token } from "@coinbase/onchainkit/token";
 
 interface SwapModalProps {
   isOpen: boolean;
+  token: Token;
   onClose: () => void;
 }
 
-const SwapModal: React.FC<SwapModalProps> = ({ isOpen, onClose }) => {
+const SwapModal: React.FC<SwapModalProps> = ({ isOpen, onClose, token }) => {
   const [activeTab, setActiveTab] = useState<"buy" | "sell">("buy");
   const [amount, setAmount] = useState<string>("");
 
@@ -26,7 +28,7 @@ const SwapModal: React.FC<SwapModalProps> = ({ isOpen, onClose }) => {
       />
 
       {/* Modal */}
-      <SwapComponents />
+      <SwapComponents token={token} />
     </div>
   );
 };

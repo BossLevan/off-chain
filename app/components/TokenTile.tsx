@@ -61,7 +61,7 @@ export function TokenTile({ token }: TokenTileProps) {
         </div>
         <div className="flex flex-col justify-between py-[2px] max-w-[240px]">
           <div className="text-[12px] font-header font-extralight text-blue-400">
-            {token.marketCapETH} MARKET CAP
+            ${token.marketCapETH} MARKET CAP
           </div>
           <div className="font-bold text-[20px] mt-0.5">
             {token.metadata.name}
@@ -72,7 +72,7 @@ export function TokenTile({ token }: TokenTileProps) {
         </div>
       </div>
       <Link
-        href={`/cabin/${token.createdAt}`}
+        href={`/cabin/${token.id}`}
         className="text-blue-500 font-bold bg-[#1d2228] px-4 py-2.5 rounded-3xl"
       >
         Open
