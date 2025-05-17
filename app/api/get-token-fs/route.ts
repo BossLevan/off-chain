@@ -4,7 +4,7 @@ import { GraphQLClient } from "graphql-request";
 import { SINGLE_COIN_QUERY } from "@/lib/utils/queries";
 import { getTokenDetails } from "../firebase";
 
-const ALLOWED_ORIGINS = ["http://localhost:3000"]; // add prod later
+const ALLOWED_ORIGINS = ["http://localhost:3000", "https://off-chain.vercel.app"]; // add prod later
 
 ///api/get-token-fs?contract=0x123abc...
 export async function GET(req: Request) {

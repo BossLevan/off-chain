@@ -7,7 +7,7 @@ import { join } from "path";
 import { tmpdir } from "os";
 import { nanoid } from "nanoid";
 
-const ALLOWED_ORIGINS = ["http://localhost:3000"];
+const ALLOWED_ORIGINS = ["http://localhost:3000", "https://off-chain.vercel.app"]; // add prod later
 
 export async function POST(req: Request) {
   const origin = req.headers.get("referer") || req.headers.get("origin");

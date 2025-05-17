@@ -4,7 +4,7 @@ import { GraphQLClient } from "graphql-request";
 import { SINGLE_COIN_QUERY } from "@/lib/utils/queries";
 import { notifyBusinessManager } from "../firebase";
 
-const ALLOWED_ORIGINS = ["http://localhost:3000"]; // add prod later
+const ALLOWED_ORIGINS = ["http://localhost:3000", "https://off-chain.vercel.app"]; // add prod later
 
 export async function GET(req: Request) {
   //******GET ID FROM QUERY PARAMETERS OR SOMEWHERE******

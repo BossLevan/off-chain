@@ -4,7 +4,7 @@ import { FlaunchClient } from "../api";
 
 //To IPFS, not firebase
 //send base64 string here.
-const ALLOWED_ORIGINS = ["http://localhost:3000"]; // add prod later
+const ALLOWED_ORIGINS = ["http://localhost:3000", "https://off-chain.vercel.app"]; // add prod later
 
 export async function POST(req: Request) {
     const origin = req.headers.get("referer") || req.headers.get("origin");

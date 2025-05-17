@@ -10,7 +10,7 @@ const replicate = new Replicate({
 });
 
 // Optional: restrict which frontend domains can send requests
-const ALLOWED_ORIGINS = ["http://localhost:3000"];
+const ALLOWED_ORIGINS = ["http://localhost:3000", "https://off-chain.vercel.app"]; // add prod later
 
 async function fileToBuffer(file: File): Promise<Buffer> {
   const arrayBuffer = await file.arrayBuffer();

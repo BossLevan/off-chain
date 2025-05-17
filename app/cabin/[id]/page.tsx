@@ -30,7 +30,6 @@ import { formatDateFromTimestamp } from "@/lib/utils/formatDate";
 import NetCostStatusTag from "@/app/components/NetCostStatusTag";
 import { generateAiImage, notifyBusinessManagerClient } from "@/app/api/client";
 import ImageModal from "@/app/components/ImageModal";
-import { notifyBusinessManager } from "@/app/api/firebase";
 import { GenerationProgress } from "@/app/components/GenerationProgress";
 import { convertStatToUsd } from "@/lib/utils/convertStatsToUsd";
 

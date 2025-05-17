@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { GraphQLClient } from "graphql-request";
 import { ALL_COLLECTIONS_QUERY_BY_MARKETCAP } from "@/lib/utils/queries";
 
-const ALLOWED_ORIGINS = ["http://localhost:3000"]; // add prod later
+const ALLOWED_ORIGINS = ["http://localhost:3000", "https://off-chain.vercel.app"]; // add prod later
 
 //YOU CAN REFACTOR TO PUT THE GRAPHQL REQUESTS INTO THE API.TS FLAUNCH SDK
 export async function GET(req: Request) {
