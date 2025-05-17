@@ -216,7 +216,12 @@ export default function App() {
           {/* Token List */}
           {!loading && !error && (
             <div className="space-y-4">
-              {cabins?.map((cabin) => <TokenTile token={cabin} />)}
+              {cabins?.map(
+                (cabin) =>
+                  cabin.metadata != null && (
+                    <TokenTile key={cabin.id} token={cabin} />
+                  ),
+              )}
             </div>
           )}
         </div>

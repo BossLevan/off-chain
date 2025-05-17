@@ -322,22 +322,24 @@ export async function getTokenDetails(
   
       // 1. 🔧 Update Image Metrics
       if (imageGenerated) {
+        
         updates.totalImagesGenerated = (data.totalImagesGenerated || 0) + 1;
         const costPerImage = 0.001; // for example
         updates.totalInferenceCost = updates.totalImagesGenerated * costPerImage;
       }
+
+    //   // 2. 🌊 Fetch Onchain Volume from The Graph
+    //   const volume = await getVolumeFromGraphQL(contractAddress); // Implement this
+    //   console.log('volume', volume)
+    //   updates.totalVolumeGenerated = volume;
   
-      // 2. 🌊 Fetch Onchain Volume from The Graph
-      const volume = await getVolumeFromGraphQL(contractAddress); // Implement this
-      console.log('volume', volume)
-      updates.totalVolumeGenerated = volume;
-  
-      // 3. 🎁 Calculate Rewards (1% of volume)
-      const rewards = volume * 0.01;
-      updates.totalRewardsGenerated = rewards;
+    //   // 3. 🎁 Calculate Rewards (1% of volume)
+    //   const rewards = volume * 0.01;
+    //   updates.totalRewardsGenerated = rewards;
   
       // 4. 🧮 Compute Net Cost
-      updates.netCost = rewards - updates.totalInferenceCost;
+    //   updates.netCost = rewards - updates.totalInferenceCost;
+    updates.netCost = data.netCost += 2;
   
       // 5. 💾 Commit to Firestore
       await updateDoc(docRef, updates);

@@ -92,13 +92,13 @@ export default function CabinDetail() {
     setUploadedImage(null);
   };
 
-  // useEffect(() => {
-  //   async function callBusinessManager() {
-  //     const res = await notifyBusinessManagerClient(id, false);
-  //   }
+  useEffect(() => {
+    async function callBusinessManager() {
+      const res = await notifyBusinessManagerClient(id, false);
+    }
 
-  //   callBusinessManager();
-  // }, [id]);
+    callBusinessManager();
+  }, [id]);
 
   //generate function
   const generateImage = async () => {
