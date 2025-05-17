@@ -3,6 +3,7 @@ import Replicate from "replicate";
 import { Buffer } from "buffer";
 import { ErrorResponse } from "@/lib/utils/types";
 import { uploadImagesToStorageTemporary } from "../firebase";
+import { streamToBase64 } from "@/lib/utils/base64";
 
 const replicate = new Replicate({
     auth: process.env.REPLICATE_API_TOKEN,
@@ -65,17 +66,3 @@ export async function POST(req: Request) {
   }
 }
 
-export async function streamToBase64(stream: ReadableStream): Promise<string> {
-    const reader = stream.getReader();
-    const chunks = [];
-  
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-      chunks.push(value);
-    }
-  
-    const blob = new Blob(chunks, { type: "image/png" });
-    const buffer = Buffer.from(await blob.arrayBuffer());
-    return `data:image/png;base64,${buffer.toString("base64")}`;
-  }

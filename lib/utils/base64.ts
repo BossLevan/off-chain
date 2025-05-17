@@ -26,4 +26,19 @@ export function fileToBase64(file: Blob): Promise<string> {
       await client.uploadImage(base64); // call the SDK wrapper
     }}
   /> */
+
+  export async function streamToBase64(stream: ReadableStream): Promise<string> {
+    const reader = stream.getReader();
+    const chunks = [];
+  
+    while (true) {
+      const { done, value } = await reader.read();
+      if (done) break;
+      chunks.push(value);
+    }
+  
+    const blob = new Blob(chunks, { type: "image/png" });
+    const buffer = Buffer.from(await blob.arrayBuffer());
+    return `data:image/png;base64,${buffer.toString("base64")}`;
+  }
   
