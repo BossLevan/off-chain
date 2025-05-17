@@ -4,33 +4,21 @@ import { gql } from 'graphql-request';
 // Make sure to change the 'creator' address to the Off-Chain Address
 export const ALL_COLLECTIONS_QUERY_BY_MARKETCAP = gql`
 query getAllCollectionTokens {
-    collectionTokens(
-        first: 10
-        orderBy: marketCapETH
-        orderDirection: asc
-        where: {creator: "0xf1a700000087c011413c21c9b357a6962aa256f9"}
-      ) {
-        baseURI
-        id
-        collection {
-          contract
-          id
-          tokenID
-        }
-        createdAt
-        creator {
-          id
-        }
-        tokenPrice
-        volumeETH
-        marketCapETH
-        metadata {
-          description
-          name
-          symbol
-        }
-      }
+  collectionTokens(
+    where: { collection_: {manager: "0x128Ba3c15877E16aBcFBe37b26b79eA7d4686D6a"}}
+  ) {
+    baseURI
+    createdAt
+    volumeETH
+    marketCapETH
+    metadata {
+      description
+      name
+      symbol
+    }
+    id
   }
+}
 `;
 
 // All Coins filtered by date created
@@ -83,6 +71,15 @@ query getCollectionToken($id: String!) {
           twitter
           website
         }
+      }
+  }
+`;
+
+//Singular Coin Volume details
+export const SINGLE_COIN_VOLUME_QUERY = gql`
+query getCollectionToken($id: String!) {
+    collectionToken(id: $id) {
+        volumeETH
       }
   }
 `;

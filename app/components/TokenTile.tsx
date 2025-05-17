@@ -1,9 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import UpArrow from "@/app/components/UpArrow"; // Adjust path as needed
-import { convertIpfsToPinataUrl } from "@/lib/utils/ipfs"; // Adjust path as needed
+import UpArrow from "@/app/components/UpArrow";
+import { convertIpfsToPinataUrl } from "@/lib/utils/ipfs";
 import { Token } from "@/lib/utils/types";
+import { convertStatToUsd } from "@/lib/utils/convertStatsToUsd";
 
 type TokenTileProps = {
   token: Token;
@@ -12,6 +13,8 @@ type TokenTileProps = {
 export function TokenTile({ token }: TokenTileProps) {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [marketCapUsd, setMarketCapUsd] = useState<string | null>(null);
+  const [volumeUsd, setVolumeUsd] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -39,6 +42,21 @@ export function TokenTile({ token }: TokenTileProps) {
     };
   }, [token.baseURI]);
 
+  useEffect(() => {
+    async function convertStats() {
+      if (token.marketCapETH) {
+        const usd = await convertStatToUsd(token.marketCapETH.toString());
+        setMarketCapUsd(usd);
+      }
+      if (token.volumeETH) {
+        const volume = await convertStatToUsd(token.volumeETH.toString());
+        setVolumeUsd(volume);
+      }
+    }
+
+    convertStats();
+  }, [token.marketCapETH, token.volumeETH]);
+
   return (
     <div className="flex items-center justify-between bg-[#141619] rounded-[24px] p-5">
       <div className="flex space-x-4">
@@ -61,7 +79,7 @@ export function TokenTile({ token }: TokenTileProps) {
         </div>
         <div className="flex flex-col justify-between py-[2px] max-w-[240px]">
           <div className="text-[12px] font-header font-extralight text-blue-400">
-            ${token.marketCapETH} MARKET CAP
+            {marketCapUsd ?? "..."} MARKET CAP
           </div>
           <div className="font-bold text-[20px] mt-0.5">
             {token.metadata.name}

@@ -1,6 +1,10 @@
-import { getFirestore, doc, setDoc, getDoc } from "firebase/firestore";
+import { getFirestore, doc, setDoc, getDoc, updateDoc } from "firebase/firestore";
 import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { app } from "@/app/firebase_config"
+import { GraphQLClient } from "graphql-request";
+import { SingleCoinVolumeResponse } from "@/lib/utils/types";
+import { SINGLE_COIN_VOLUME_QUERY } from "@/lib/utils/queries";
+import { onSnapshot } from "firebase/firestore";
 
 // Your Firestore and Storage refs
 const db = getFirestore(app, "off-chain");
@@ -94,6 +98,72 @@ export async function uploadImagesToStorage(
       throw new Error(`Failed to upload images: ${error?.message || 'Unknown error'}`);
     }
   }
+
+  export async function uploadImagesToStorageTemporary(
+    imageFiles: File[]
+  ): Promise<string[]> {
+    try {
+      // Validate image count
+      if (!imageFiles || imageFiles.length < 1 || imageFiles.length > 4) {
+        throw new Error("Image count must be between 1 and 4.");
+      }
+  
+      const uploadPromises = imageFiles.map(async (file, index) => {
+        try {
+          if (!file || !(file instanceof File)) {
+            throw new Error(`Invalid file at index ${index}.`);
+          }
+          
+          // Create a blob from the file and specify content type
+          const blob = new Blob([await file.arrayBuffer()], { type: file.type });
+          
+          // Use a more reliable path format with timestamp to avoid conflicts
+          const timestamp = new Date().getTime();
+          const fileName = `image-${index + 1}-${timestamp}`;
+          const storageRef = ref(storage, `temporary-images/${fileName}`);
+          
+          // Log upload attempt details
+          console.log(`Attempting to upload file: ${file.name}, size: ${file.size}, type: ${file.type}`);
+          
+          // Set metadata with content type
+          const metadata = {
+            contentType: file.type || 'image/jpeg', // Default to JPEG if type is missing
+            customMetadata: {
+              originalName: file.name,
+              uploadedAt: new Date().toISOString()
+            }
+          };
+          
+          // Upload with metadata
+          const snapshot = await uploadBytes(storageRef, blob, metadata);
+          console.log(`Upload successful for image ${index + 1}`);
+          
+          // Get download URL
+          return await getDownloadURL(snapshot.ref);
+        } catch (error: any) {
+          console.error(`Error uploading image ${index + 1}:`, error);
+          
+          // Provide more specific error message based on Firebase error code
+          if (error.code === 'storage/unauthorized') {
+            throw new Error(`Permission denied when uploading image ${index + 1}. Check Firebase Storage rules.`);
+          } else if (error.code === 'storage/canceled') {
+            throw new Error(`Upload canceled for image ${index + 1}.`);
+          } else if (error.code === 'storage/retry-limit-exceeded') {
+            throw new Error(`Network error occurred when uploading image ${index + 1}. Check your connection.`);
+          } else if (error.code === 'storage/invalid-checksum') {
+            throw new Error(`File integrity check failed for image ${index + 1}. Try uploading again.`);
+          } else {
+            throw new Error(`Failed to upload image ${index + 1}: ${error?.message || 'Unknown error'}`);
+          }
+        }
+      });
+  
+      return await Promise.all(uploadPromises);
+    } catch (error: any) {
+      console.error("Error in uploadImagesToStorage:", error);
+      throw new Error(`Failed to upload images: ${error?.message || 'Unknown error'}`);
+    }
+  }
   
   /**
    * Save metadata to Firestore
@@ -126,12 +196,18 @@ export async function uploadImagesToStorage(
           throw new Error(`Invalid image URL at index ${i}.`);
         }
       }
-  
+  //total AI cost, images generated, total volume, total rewards
       const docRef = doc(db, "contracts", contractAddress);
       await setDoc(docRef, {
         prompt,
         imageUrls,
         uploadedAt: new Date().toISOString(),
+        totalInferenceCost: 0,
+        totalImagesGenerated: 0,
+        model: "",
+        totalVolumeGenerated: 0,
+        totalRewardsGenerated: 0,
+        netCost: 0
       });
     } catch (error) {
       console.error("Error in saveMetadataToFirestore:", error);
@@ -208,3 +284,122 @@ export async function getTokenDetails(
       };
     }
   }
+
+  /**
+   * @param 
+   */
+  // await setDoc(docRef, {
+//     prompt,
+//     imageUrls,
+//     uploadedAt: new Date().toISOString(),
+//     totalInferenceCost: 0,
+//     totalImagesGenerated: 0,
+//     model: "",
+//     totalVolumeGenerated: 0,
+//     totalRewardsGenerated: 0,
+//     netCost: 0
+//   });
+  //Call InferenceManager()
+  //update GPU inference costing and update rewards calc from volume.
+  //basically like a net cost. so update the net cost. 
+  //Fields: - total AI cost, images generated, total volume, total rewards
+  //if net < 10 (dosent have to be 0), clip the ui untill vol improves.
+  export async function notifyBusinessManager(
+    contractAddress: string,
+    imageGenerated: boolean,
+  ) {
+    try {
+      const docRef = doc(db, "contracts", contractAddress);
+      const snapshot = await getDoc(docRef);
+  
+      if (!snapshot.exists()) {
+        console.log("snapshot doesn't exist");
+        return { success: false, error: "Token not found" };
+      }
+  
+      const data = snapshot.data();
+      const updates: any = {};
+  
+      // 1. 🔧 Update Image Metrics
+      if (imageGenerated) {
+        updates.totalImagesGenerated = (data.totalImagesGenerated || 0) + 1;
+        const costPerImage = 0.001; // for example
+        updates.totalInferenceCost = updates.totalImagesGenerated * costPerImage;
+      }
+  
+      // 2. 🌊 Fetch Onchain Volume from The Graph
+      const volume = await getVolumeFromGraphQL(contractAddress); // Implement this
+      console.log('volume', volume)
+      updates.totalVolumeGenerated = volume;
+  
+      // 3. 🎁 Calculate Rewards (1% of volume)
+      const rewards = volume * 0.01;
+      updates.totalRewardsGenerated = rewards;
+  
+      // 4. 🧮 Compute Net Cost
+      updates.netCost = rewards - updates.totalInferenceCost;
+  
+      // 5. 💾 Commit to Firestore
+      await updateDoc(docRef, updates);
+  
+      return { success: true };
+    } catch (error) {
+      console.error("Error updating business metrics:", error);
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : "Unknown error occurred",
+      };
+    }
+  }
+  
+  async function getVolumeFromGraphQL(contractAddress: string): Promise<number> {
+    const DATA_URL = process.env.FLAUNCH_URL_MAINNET;
+    if (!DATA_URL) {
+      throw new Error("Missing FLAUNCH_URL_MAINNET environment variable");
+    }
+  
+    const client = new GraphQLClient(DATA_URL);
+    
+  try {
+    const response = await client.request<{ collectionToken: {volumeETH: string}
+       }>(
+        SINGLE_COIN_VOLUME_QUERY, { id: contractAddress }
+      );
+  
+
+    console.log("GraphQL response:", JSON.stringify(response, null, 2));
+    if (!response?.collectionToken.volumeETH) {
+      throw new Error("Unexpected response structure");
+    }
+
+    const data = response.collectionToken;
+    console.log(data)
+    return Number.parseInt(data.volumeETH!);
+  } catch (error: any) {
+    console.error("Error fetching tokens:", error);
+    throw new Error('Could not get Volume for Token', error)
+  }
+  }
+
+
+
+export function listenToNetCost(
+  contractAddress: string,
+  onChange: (netCost: number) => void
+) {
+  const docRef = doc(db, "contracts", contractAddress);
+
+  const unsubscribe = onSnapshot(docRef, (snapshot) => {
+    if (!snapshot.exists()) {
+      console.warn("Document not found:", contractAddress);
+      return;
+    }
+
+    const data = snapshot.data();
+    if (data.netCost !== undefined) {
+      onChange(data.netCost);
+    }
+  });
+
+  return unsubscribe; // 🔁 Call this to stop listening when component unmounts
+}

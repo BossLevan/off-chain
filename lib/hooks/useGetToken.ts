@@ -18,6 +18,7 @@ export function useTokenDetails(contract: string | null) {
 
       try {
         const token = await getTokenDetails(contract);
+        //get firestore too
         setData(token);
       } catch (err: any) {
         setError(err.message || "Error fetching token");

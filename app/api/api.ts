@@ -45,12 +45,12 @@ export class FlaunchClient {
           description: cfg.description,
           imageIpfs: cfg.imageIpfs,
           //Should be in constants.ts
-        //   creatorFeeSplit: cfg.creatorFeeSplit,
-        //   creatorAddress: cfg.creatorAddress,
-        //   revenueManager: cfg.revenueManager,
-        //   marketCap: cfg.marketCap,
-        //   fairLaunchDuration: cfg.fairLaunchDuration,
-        //   fairLaunchSupply: cfg.fairLaunchSupply,
+          creatorFeeSplit: "8000",
+          creatorAddress: cfg.creatorAddress,
+          revenueManagerAddress: cfg.revenueManagerAddress,
+          marketCap: "10000000000",
+          fairLaunchDuration: "1800",
+        //   fairLaunchSupply: "0",
         //   websiteUrl: cfg.websiteUrl,
         //   telegramUrl: cfg.telegramUrl,
         //   discordUrl: cfg.discordUrl,
@@ -98,6 +98,7 @@ export class FlaunchClient {
         }
     
         if (res.state === "completed") {
+        console.log(res)
           return {
             state: "completed",
             tokenAddress: res.collectionToken.address,

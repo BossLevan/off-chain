@@ -1,9 +1,9 @@
-import './theme.css';
-import '@coinbase/onchainkit/styles.css';
-import type { Metadata, Viewport } from 'next';
-import './globals.css';
-import { Providers } from './providers';
-
+import "./theme.css";
+import "@coinbase/onchainkit/styles.css";
+import type { Metadata, Viewport } from "next";
+import "./globals.css";
+import { Providers } from "./providers";
+import { Toaster } from "react-hot-toast";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -43,6 +43,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="bg-background">
+        <Toaster position="top-center" />
         <Providers>{children}</Providers>
       </body>
     </html>

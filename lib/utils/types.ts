@@ -1,24 +1,36 @@
 export interface Token {
-    baseURI: string;
-    id: string;
-    createdAt: string;
-    creator: {
-      id: string;
-    };
-    collection: {
-      id: string
-      contract: string
-      tokenID: string
-    };
-    tokenPrice: string;
-    volumeETH: string;
-    marketCapETH: string;
-    metadata: {
-      description: string;
-      name: string;
-      symbol: string;
-    };
-  }
+  id: string
+  baseURI: string;
+  marketCapETH: number;
+  marketCapUSDC: number;
+  volumeETH: number;
+  volumeUSDC: number;
+  totalHolders: number;
+  name: string;
+  metadata: {
+    description: string;
+    name: string;
+    symbol: string;
+  };
+}
+
+export type CollectionToken = {
+  id: string;
+  baseURI: string;
+  createdAt: string; // If it's a timestamp string. Use `number` if it's a Unix number.
+  volumeETH: number;
+  marketCapETH: number;
+  metadata: {
+    description: string;
+    name: string;
+    symbol: string;
+  };
+};
+
+export type CollectionTokensResponse = {
+  collectionTokens: CollectionToken[];
+};
+  
   
   export interface AllTokens {
     collectionTokens: Token[];
@@ -41,6 +53,13 @@ export interface Token {
       website?: string;
     };
   }
+
+  export interface SingleCoinVolumeResponse {
+    collectionToken: {
+      volumeETH: string;
+    } | null; 
+  };
+  
   
   export interface SingleCoinQueryResponse {
     collectionToken: SingleTokenDetailed | null;
@@ -71,7 +90,7 @@ export interface FlaunchTokenConfig {
   imageIpfs: string;
   creatorFeeSplit?: number;
   creatorAddress?: string;
-  revenueManager?: string;
+  revenueManagerAddress?: string;
   marketCap?: string;
   fairLaunchDuration?: number;
   fairLaunchSupply?: number;

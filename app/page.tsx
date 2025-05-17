@@ -5,8 +5,9 @@ import {
   useAddFrame,
   useOpenUrl,
 } from "@coinbase/onchainkit/minikit";
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useAccount } from "wagmi";
+import toast from "react-hot-toast";
 import Check from "./svg/Check";
 import Link from "next/link";
 import Image from "next/image";
@@ -81,6 +82,8 @@ import { useTokens } from "@/lib/hooks/useGetTokens";
 import { Loader2 } from "lucide-react";
 import { convertIpfsToPinataUrl } from "@/lib/utils/ipfs";
 import { TokenTile } from "./components/TokenTile";
+import { useSearchParams } from "next/navigation";
+import React from "react";
 
 export default function App() {
   const { setFrameReady, isFrameReady, context } = useMiniKit();
@@ -90,8 +93,10 @@ export default function App() {
   const addFrame = useAddFrame();
   const openUrl = useOpenUrl();
   const { address } = useAccount();
+  const searchParams = useSearchParams();
 
   const { tokens: cabins, loading, error } = useTokens();
+  const toastShownRef = useRef(false);
 
   const handleAddFrame = useCallback(async () => {
     const frameAdded = await addFrame();
@@ -122,6 +127,14 @@ export default function App() {
 
     return null;
   }, [context, handleAddFrame, frameAdded]);
+
+  useEffect(() => {
+    // Only show toast if it hasn't been shown yet and the param exists
+    if (searchParams.get("toast") === "created" && !toastShownRef.current) {
+      toast.success("Aesthetic Created");
+      toastShownRef.current = true; // Mark toast as shown
+    }
+  }, [searchParams]);
 
   return (
     <div className="flex flex-col h-screen bg-[#0C0C0C] text-white">

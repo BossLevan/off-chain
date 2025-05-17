@@ -6,6 +6,8 @@ import { useState, useRef } from "react";
 import Link from "next/link";
 import { ArrowLeft, Plus, X, AlertCircle } from "lucide-react";
 import { fileToBase64 } from "@/lib/utils/base64";
+import { launchToken } from "../api/client";
+import { useRouter } from "next/navigation";
 
 interface FormData {
   name: string;
@@ -37,6 +39,8 @@ export default function CreateCabin() {
 
   const [errors, setErrors] = useState<FormErrors>({});
   const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const [loading, setLoading] = useState<boolean>(false);
+  const router = useRouter();
 
   const mainImageRef = useRef<HTMLInputElement>(null);
   const sampleImageRef = useRef<HTMLInputElement>(null);
@@ -187,55 +191,34 @@ export default function CreateCabin() {
 
     //**********REFACTOR THIS INTO THE API.TS FILE*************** */
     try {
+      setLoading(true);
+      await new Promise((resolve) => setTimeout(resolve, 3000));
       //convert header image to base64
-      // const base64Image = await fileToBase64(formData.mainImage as Blob);
-      // //upload header image to ipfs
-      // const imageResponse = await fetch("/api/image-upload", {
-      //   method: "POST",
-      //   body: JSON.stringify(base64Image),
-      //   // ❌ Do NOT set 'Content-Type', the browser handles this automatically.
-      // });
-      // const data = await imageResponse.json();
-      // let imageHash: string;
-      // if (imageResponse.ok) {
-      //   console.log("Image uploaded:", data.hash);
-      //   //Assign the variable the ipfs hash
-      //   imageHash = data.hash;
-      //   submitData.append("imageIpfs", imageHash);
-      // } else {
-      //   console.error("Upload failed:", data);
-      // }
-
-      //hash: QmaNd3wsqBf8pqqA2ZxvfNx6HqbiebEfJKB5GbVzvsEWhK
-
-      //Append the hash into the formdata
-
-      submitData.append(
-        "imageIpfs",
-        "QmaNd3wsqBf8pqqA2ZxvfNx6HqbiebEfJKB5GbVzvsEWhK",
-      );
-      const response = await fetch(
-        "/api/token?contract=0x1c93d155bd388241f9ab5df500d69eb529ce9583",
-        {
-          method: "GET",
-        },
-      );
-      console.log(await response.json());
-      // const response = await fetch("/api/create-token", {
-      //   method: "POST",
-      //   body: submitData,
-      //   // ❌ Do NOT set 'Content-Type', the browser handles this automatically.
-      // });
-
-      // if (!response.ok) {
-      //   const error = await response.json();
-      //   console.error("Server error:", error.error);
-      //   return;
-      // }
-
-      // const result = await response.json();
-      // console.log("Success:", result);
+      const base64Image = await fileToBase64(formData.mainImage as Blob);
+      //upload header image to ipfs
+      const imageResponse = await fetch("/api/image-upload", {
+        method: "POST",
+        body: JSON.stringify(base64Image),
+        // ❌ Do NOT set 'Content-Type', the browser handles this automatically.
+      });
+      const data = await imageResponse.json();
+      let imageHash: string;
+      if (imageResponse.ok) {
+        console.log("Image uploaded:", data.hash);
+        //Assign the variable the ipfs hash
+        imageHash = data.hash;
+        submitData.append("imageIpfs", imageHash);
+      } else {
+        console.error("Upload failed:", data);
+        setLoading(false);
+      }
+      const response = await launchToken(submitData);
+      console.log(response);
+      setLoading(false);
+      // show toast AFTER navigation
+      router.push("/?toast=created");
     } catch (error) {
+      setLoading(false);
       console.error("Error submitting form:", error);
     }
   };
@@ -260,7 +243,7 @@ export default function CreateCabin() {
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-[480px] mx-auto px-4 pb-32">
           <h1 className="text-3xl font-bold my-8 text-center">
-            Launch a New Cabin
+            Launch a New Aesthetic
           </h1>
 
           {/* Main Image Upload */}
@@ -457,19 +440,38 @@ export default function CreateCabin() {
       <div className="sticky bottom-0 bg-black/50 backdrop-blur-lg z-10">
         <div className="max-w-[480px] mx-auto px-4 py-4">
           <div className="space-y-4">
-            {/* <p className="text-gray-400">
-              <span className="text-green-500 mr-2">✓</span>
-              You need 0.001 ETH to launch this cabin.
-              <button className="text-blue-500 underline hover:text-blue-400 mx-1 inline">
-                Buy here
-              </button>
-              (Bal: 0.00 ETH)
-            </p> */}
             <button
               onClick={handleSubmit}
-              className="w-full bg-blue-500 text-white py-4 rounded-full font-medium text-lg"
+              disabled={loading}
+              className="w-full bg-blue-500 text-white py-4 rounded-full font-medium text-lg flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Launch
+              {loading ? (
+                <>
+                  <svg
+                    className="animate-spin h-5 w-5 mr-2 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8v8H4z"
+                    ></path>
+                  </svg>
+                  Launching...
+                </>
+              ) : (
+                "Launch"
+              )}
             </button>
           </div>
         </div>

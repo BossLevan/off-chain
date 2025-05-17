@@ -2,7 +2,7 @@
 
 import type React from "react";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
@@ -19,6 +19,7 @@ import {
   ImageIcon,
   ChevronsUp,
   Heart,
+  Lock,
 } from "lucide-react";
 import SwapModal from "@/app/components/SwapModal";
 import AsyncTokenImage from "@/app/components/AsyncImage";
@@ -26,16 +27,31 @@ import { useTokenDetails } from "@/lib/hooks/useGetToken";
 import { useTokenFirestoreDetails } from "@/lib/hooks/useGetFirestoreToken";
 import GalleryImages from "@/app/components/GalleryImages";
 import { formatDateFromTimestamp } from "@/lib/utils/formatDate";
+import NetCostStatusTag from "@/app/components/NetCostStatusTag";
+import { generateAiImage, notifyBusinessManagerClient } from "@/app/api/client";
+import ImageModal from "@/app/components/ImageModal";
+import { notifyBusinessManager } from "@/app/api/firebase";
+import { GenerationProgress } from "@/app/components/GenerationProgress";
+import { convertStatToUsd } from "@/lib/utils/convertStatsToUsd";
 
 export default function CabinDetail() {
   const params = useParams();
   const [isSwapModalOpen, setIsSwapModalOpen] = useState(false);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
+  const [imageGenLoading, setImageGenLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [imageUrl, setImageUrl] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const isMobile = /iPhone|Android|iPad/i.test(navigator.userAgent);
+  const [state, setState] = useState<"Warm" | "Cold">("Cold");
+  const submitDataRef = useRef(new FormData());
+  const [marketCapUsd, setMarketCapUsd] = useState<string | "0">("0");
+  const [volumeUsd, setVolumeUsd] = useState<string | "0">("0");
 
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
   const { data: cabin, loading, error } = useTokenDetails(id);
+  const { prompt } = useTokenFirestoreDetails(id);
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -43,6 +59,8 @@ export default function CabinDetail() {
     try {
       setIsUploading(true);
       await new Promise((resolve) => setTimeout(resolve, 1000));
+      console.log(file);
+      submitDataRef.current.append("images", file);
       const previewUrl = URL.createObjectURL(file);
       setUploadedImage(previewUrl);
     } catch (error) {
@@ -52,9 +70,62 @@ export default function CabinDetail() {
     }
   };
 
+  useEffect(() => {
+    async function convertStats() {
+      if (cabin) {
+        if (cabin.marketCapETH) {
+          const usd = await convertStatToUsd(cabin.marketCapETH.toString());
+          setMarketCapUsd(usd);
+        }
+        if (cabin.volumeETH) {
+          const volume = await convertStatToUsd(cabin.volumeETH.toString());
+          setVolumeUsd(volume);
+        }
+      }
+    }
+
+    convertStats();
+  }, [cabin]);
+
   const removeUploadedImage = () => {
     if (uploadedImage) URL.revokeObjectURL(uploadedImage);
+    submitDataRef.current.delete("images");
     setUploadedImage(null);
+  };
+
+  // useEffect(() => {
+  //   async function callBusinessManager() {
+  //     const res = await notifyBusinessManagerClient(id, false);
+  //   }
+
+  //   callBusinessManager();
+  // }, [id]);
+
+  //generate function
+  const generateImage = async () => {
+    try {
+      if (prompt) {
+        setImageGenLoading(true);
+        submitDataRef.current.append("prompt", prompt);
+        const response = await generateAiImage(submitDataRef.current);
+        setImageUrl(response[0]);
+
+        setIsModalOpen(true);
+
+        //notify business manager to update costing
+        const res = await notifyBusinessManagerClient(id, true);
+
+        console.log(res);
+        setImageGenLoading(false);
+        return;
+      } else {
+        console.log("Could not get prompt");
+      }
+    } catch (err: any) {
+      setImageGenLoading(false);
+      console.log("An Error Occurred While Generating Images", err);
+      throw Error(err);
+    }
   };
 
   if (loading) {
@@ -112,7 +183,19 @@ export default function CabinDetail() {
                 >
                   Swap
                 </button>
-                <button className="bg-blue-500 text-white py-3 rounded-full font-medium text-sm">
+                <button
+                  onClick={() => {
+                    if (isMobile) {
+                      window.location.href = `https://flaunch.gg/base/coin/${id}`; // opens in same tab (better UX for mobile)
+                    } else {
+                      window.open(
+                        `https://flaunch.gg/base/coin/${id}`,
+                        "_blank",
+                      );
+                    }
+                  }}
+                  className="bg-blue-500 text-white py-3 rounded-full font-medium text-sm"
+                >
                   Buy
                 </button>
               </div>
@@ -124,12 +207,12 @@ export default function CabinDetail() {
             {[
               {
                 label: "Volume (24h)",
-                value: `$${cabin.volumeETH}`,
+                value: `${volumeUsd}`,
                 icon: <ChevronsUp className="w-5 h-5 text-green-400" />,
               },
               {
                 label: "Market Cap",
-                value: `$${cabin.marketCapETH}`,
+                value: `${marketCapUsd}`,
                 icon: (
                   <Sparkle className="w-5 h-5 stroke-yellow-500 fill-yellow-500" />
                 ),
@@ -190,23 +273,53 @@ export default function CabinDetail() {
               </div>
             ) : (
               <button
-                onClick={() => fileInputRef.current?.click()}
+                onClick={
+                  state == "Cold"
+                    ? () => {}
+                    : () => fileInputRef.current?.click()
+                }
                 disabled={isUploading}
                 className="relative w-full aspect-[4/3] rounded-[2rem] bg-gradient-to-br from-[#D500FF] via-[#04FF4F] to-[#F10509]"
               >
                 <div className="absolute inset-[1px] rounded-[calc(2rem-1px)] bg-[#0a0a0a] flex flex-col items-center justify-center gap-4 transition-all duration-300 ease-in-out">
-                  <div className="p-4 bg-[#1a1f28] rounded-full">
-                    <Upload className="w-8 h-8 text-blue-400" />
-                  </div>
+                  {state == "Cold" ? (
+                    <div className="p-4 bg-[#1a1f28] rounded-full">
+                      <Lock className="w-8 h-8 text-blue-400" />
+                    </div>
+                  ) : (
+                    <div className="p-4 bg-[#1a1f28] rounded-full">
+                      <Upload className="w-8 h-8 text-blue-400" />
+                    </div>
+                  )}
+
                   <div className="text-center">
-                    <p className="text-lg font-medium text-white mb-2">
-                      {isUploading ? "Uploading..." : "Upload your image"}
-                    </p>
-                    <p className="text-sm text-zinc-400">
-                      {isUploading
-                        ? "Please wait..."
-                        : "Click to browse or drag and drop"}
-                    </p>
+                    {state == "Cold" ? (
+                      <p className="text-lg font-medium text-white mb-2">
+                        Credits are Low
+                      </p>
+                    ) : (
+                      <p className="text-lg font-medium text-white mb-2">
+                        {isUploading ? "Uploading..." : "Upload your image"}
+                      </p>
+                    )}
+
+                    {state == "Cold" ? (
+                      <p className="text-sm text-zinc-400">
+                        Trade this Aesthetic to unlock
+                      </p>
+                    ) : (
+                      <p className="text-sm text-zinc-400">
+                        {isUploading
+                          ? "Please wait..."
+                          : "Click to browse or drag and drop"}
+                      </p>
+                    )}
+                  </div>
+                  <div>
+                    <NetCostStatusTag
+                      contractAddress={id}
+                      onStateChange={setState}
+                    />
                   </div>
                 </div>
               </button>
@@ -290,6 +403,7 @@ export default function CabinDetail() {
             <span>Upload Required Image to app to generate</span>
           </div>
           <button
+            onClick={generateImage}
             className={`w-full py-3 rounded-full font-medium text-lg ${
               uploadedImage
                 ? "bg-blue-500 hover:bg-blue-600"
@@ -303,11 +417,62 @@ export default function CabinDetail() {
         <div className="safe-bottom" />
       </div>
 
+      {imageGenLoading && (
+        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex flex-col items-center justify-center">
+          <div className="relative w-64 h-64">
+            {/* Animated gradient circle */}
+            <div
+              className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 animate-spin"
+              style={{ animationDuration: "3s" }}
+            ></div>
+
+            {/* Inner circle */}
+            <div className="absolute inset-2 rounded-full bg-black flex items-center justify-center">
+              <div className="flex flex-col items-center">
+                <div className="relative w-16 h-16 mb-4">
+                  {/* Animated dots */}
+                  {[...Array(3)].map((_, i) => (
+                    <div
+                      key={i}
+                      className="absolute w-4 h-4 bg-blue-500 rounded-full"
+                      style={{
+                        left: "50%",
+                        top: "50%",
+                        transform: "translate(-50%, -50%)",
+                        animation: `pulse 1.5s infinite ${i * 0.3}s`,
+                      }}
+                    ></div>
+                  ))}
+                </div>
+                <h3 className="text-xl font-bold text-white mb-2">
+                  Creating Magic
+                </h3>
+                {/* <p className="text-gray-400 text-center max-w-xs">
+                  Generating your stylized image...
+                </p> */}
+              </div>
+            </div>
+          </div>
+
+          {/* Animated percentage counter */}
+          <div className="mt-8">
+            <GenerationProgress />
+          </div>
+        </div>
+      )}
+
+      {/* Modal */}
+      <ImageModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        imageUrl={imageUrl}
+      />
+
       <SwapModal
         isOpen={isSwapModalOpen}
         onClose={() => setIsSwapModalOpen(false)}
         token={{
-          address: cabin.id as `0x${string}`,
+          address: id as `0x${string}`,
           chainId: 8453,
           decimals: 18,
           name: cabin.metadata.name,
