@@ -4,6 +4,7 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { Providers } from "./providers";
 import { Toaster } from "react-hot-toast";
+import { Suspense } from "react";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -44,7 +45,9 @@ export default function RootLayout({
     <html lang="en">
       <body className="bg-background">
         <Toaster position="top-center" />
-        <Providers>{children}</Providers>
+        <Suspense>
+          <Providers>{children}</Providers>
+        </Suspense>
       </body>
     </html>
   );
