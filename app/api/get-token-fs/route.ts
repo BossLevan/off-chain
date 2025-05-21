@@ -20,11 +20,11 @@ export async function GET(req: Request) {
         return NextResponse.json<ErrorResponse>({ error: "Missing contract address" }, { status: 400 });
     }
   try {
-    const { success, prompt, imageUrls } = await getTokenDetails(contractAddress)
+    const { success, prompt, imageUrls, netCost, totalImagesGenerated } = await getTokenDetails(contractAddress)
     if(!success){
         throw new Error('Could not get token details from firestore')
     }
-    return NextResponse.json({prompt: prompt, imageUrls: imageUrls}, {status: 200 });
+    return NextResponse.json({prompt: prompt, imageUrls: imageUrls, netCost: netCost, totalImagesGenerated: totalImagesGenerated}, {status: 200 });
   } catch (error) {
     console.error("Error fetching tokens:", error);
     return NextResponse.json<ErrorResponse>(

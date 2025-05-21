@@ -5,6 +5,8 @@ import { GraphQLClient } from "graphql-request";
 import { SingleCoinVolumeResponse } from "@/lib/utils/types";
 import { SINGLE_COIN_VOLUME_QUERY } from "@/lib/utils/queries";
 import { onSnapshot } from "firebase/firestore";
+import { convertStatToUsd, convertWeiToUsd } from "@/lib/utils/convertStatsToUsd";
+import { COST_PER_IMAGE } from "@/lib/constants";
 
 // Your Firestore and Storage refs
 const db = getFirestore(app, "off-chain");
@@ -249,8 +251,8 @@ export async function uploadImagesToStorage(
 export async function getTokenDetails(
     contractAddress: string
   ): Promise<
-    | { success: true; prompt: string; imageUrls: string[]; uploadedAt: string }
-    | { success: false; prompt?: null, imageUrls?: null,  error: string }
+    | { success: true; prompt: string; imageUrls: string[]; netCost: string, totalImagesGenerated: number, uploadedAt: string }
+    | { success: false; prompt?: null, imageUrls?: null, totalImagesGenerated?: null, netCost?: null, error: string }
   > {
     try {
       const docRef = doc(db, "contracts", contractAddress);
@@ -274,7 +276,9 @@ export async function getTokenDetails(
         success: true,
         prompt: data.prompt,
         imageUrls: data.imageUrls,
+        netCost: data.netCost,
         uploadedAt: data.uploadedAt,
+        totalImagesGenerated: data.totalImagesGenerated
       };
     } catch (error) {
       console.error("Error fetching token:", error);
@@ -304,6 +308,7 @@ export async function getTokenDetails(
   //basically like a net cost. so update the net cost. 
   //Fields: - total AI cost, images generated, total volume, total rewards
   //if net < 10 (dosent have to be 0), clip the ui untill vol improves.
+  //Calculated in $
   export async function notifyBusinessManager(
     contractAddress: string,
     imageGenerated: boolean,
@@ -324,24 +329,36 @@ export async function getTokenDetails(
       if (imageGenerated) {
         
         updates.totalImagesGenerated = (data.totalImagesGenerated || 0) + 1;
-        const costPerImage = 0.001; // for example
+        const costPerImage = COST_PER_IMAGE; // for example
         updates.totalInferenceCost = updates.totalImagesGenerated * costPerImage;
       }
 
-    //   // 2. 🌊 Fetch Onchain Volume from The Graph
-    //   const volume = await getVolumeFromGraphQL(contractAddress); // Implement this
-    //   console.log('volume', volume)
-    //   updates.totalVolumeGenerated = volume;
+      // 2. 🌊 Fetch Onchain Volume from The Graph
+      const volume = await getVolumeFromGraphQL(contractAddress); // Implement this
+      //convert volume to USD
+      const volumeInUSD: string = await convertWeiToUsd(volume.toString())
+      console.log('volume', volumeInUSD)
+      //convert from string to number
+      updates.totalVolumeGenerated = Number.parseFloat(volumeInUSD);
+      console.log(updates.totalVolumeGenerated)
   
-    //   // 3. 🎁 Calculate Rewards (1% of volume)
-    //   const rewards = volume * 0.01;
-    //   updates.totalRewardsGenerated = rewards;
+      // 3. 🎁 Calculate Rewards (1% of volume)
+      const rewards = Number.parseFloat(volumeInUSD) * 0.01;
+      updates.totalRewardsGenerated = rewards;
   
       // 4. 🧮 Compute Net Cost
+      if(updates.totalInferenceCost){
+        //means that an image was generated so we use the new inference cost
+        updates.netCost = rewards - updates.totalInferenceCost;
+      } else {
+        //means an image was NOT generated so we use the previous inference cost
+        updates.netCost = rewards - data.totalInferenceCost;
+      }
     //   updates.netCost = rewards - updates.totalInferenceCost;
-    updates.netCost = data.netCost += 2;
+    //   updates.netCost = data.netCost += 2;
   
       // 5. 💾 Commit to Firestore
+      console.log(updates)
       await updateDoc(docRef, updates);
   
       return { success: true };

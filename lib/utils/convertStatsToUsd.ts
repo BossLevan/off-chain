@@ -1,29 +1,52 @@
 import { formatEther } from "ethers";
 
-/**
- * Fetches current ETH to USD price from CoinGecko.
- */
+let cachedPrice: number | null = null;
+let lastFetched: number | null = null;
+const CACHE_DURATION_MS = 10 * 60 * 1000; // 10 minutes
+const FALLBACK_PRICE = 2500;
+
 async function getEthUsdPrice(): Promise<number> {
-  const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd");
-  const data = await res.json();
-  return data.ethereum.usd;
+  const now = Date.now();
+
+  if (cachedPrice !== null && lastFetched !== null && now - lastFetched < CACHE_DURATION_MS) {
+    return cachedPrice;
+  }
+
+  try {
+    const res = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd");
+
+    if (!res.ok) {
+      throw new Error(`Failed to fetch ETH price: ${res.statusText}`);
+    }
+
+    const data = await res.json();
+    cachedPrice = data.ethereum.usd;
+    lastFetched = now;
+    return cachedPrice!;
+  } catch (err) {
+    console.warn("Using fallback ETH price due to fetch error:", err);
+    cachedPrice = FALLBACK_PRICE;
+    lastFetched = now;
+    return FALLBACK_PRICE;
+  }
 }
 
-/**
- * Formats a number into K/M units (e.g. 1.2K, 5.3M).
- */
 function formatUsd(value: number): string {
   if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(1)}M`;
   if (value >= 1_000) return `${(value / 1_000).toFixed(1)}K`;
-  return value.toFixed(2);
+  return value.toFixed(1);
 }
 
-/**
- * Converts a raw wei string to a formatted USD string.
- */
 export async function convertStatToUsd(weiValue: string): Promise<string> {
   const ethUsdPrice = await getEthUsdPrice();
   const ethValue = parseFloat(formatEther(weiValue));
   const usdValue = ethValue * ethUsdPrice;
   return `$${formatUsd(usdValue)}`;
 }
+
+export async function convertWeiToUsd(weiValue: string): Promise<string> {
+    const ethUsdPrice = await getEthUsdPrice();
+    const ethValue = parseFloat(formatEther(weiValue));
+    const usdValue = ethValue * ethUsdPrice;
+    return formatUsd(usdValue);
+  }

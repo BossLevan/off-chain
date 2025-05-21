@@ -49,7 +49,9 @@ export async function getTokenDetails(contract: string): Promise<SingleTokenDeta
 
 export async function getTokenFirestoreDetails(contract: string): Promise<{
     prompt: string;
+    netCost: number;
     imageUrls: string[];
+    totalImagesGenerated: number
   }> {
     const res = await fetch(`/api/get-token-fs?contract=${contract}`, {
       method: "GET",

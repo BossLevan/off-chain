@@ -14,7 +14,7 @@ import {
   User,
   Twitter,
   Upload,
-  Sparkle,
+  Star,
   X,
   ImageIcon,
   ChevronsUp,
@@ -32,6 +32,9 @@ import { generateAiImage, notifyBusinessManagerClient } from "@/app/api/client";
 import ImageModal from "@/app/components/ImageModal";
 import { GenerationProgress } from "@/app/components/GenerationProgress";
 import { convertStatToUsd } from "@/lib/utils/convertStatsToUsd";
+import CircularProgress from "@/app/components/CircularProgress";
+import { listenToNetCost } from "@/app/api/firebase";
+import { NET_COST_UNLOCK_LIMIT } from "@/lib/constants";
 
 export default function CabinDetail() {
   const params = useParams();
@@ -47,10 +50,11 @@ export default function CabinDetail() {
   const submitDataRef = useRef(new FormData());
   const [marketCapUsd, setMarketCapUsd] = useState<string | "0">("0");
   const [volumeUsd, setVolumeUsd] = useState<string | "0">("0");
+  const [netCost, setNetCost] = useState<number | null>(0);
 
   const id = Array.isArray(params.id) ? params.id[0] : params.id;
   const { data: cabin, loading, error } = useTokenDetails(id);
-  const { prompt } = useTokenFirestoreDetails(id);
+  const { prompt, totalImagesGenerated } = useTokenFirestoreDetails(id);
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -98,6 +102,15 @@ export default function CabinDetail() {
     }
 
     callBusinessManager();
+  }, [id]);
+
+  useEffect(() => {
+    const unsubscribe = listenToNetCost(id, (cost) => {
+      console.log(cost);
+      setNetCost(cost);
+    });
+
+    return () => unsubscribe();
   }, [id]);
 
   //generate function
@@ -172,9 +185,15 @@ export default function CabinDetail() {
               alt={cabin.metadata.name}
               size={148}
             />
-            <div className="flex-1">
-              <h1 className="text-2xl font-bold mb-2">{cabin.metadata.name}</h1>
-              <p className="text-gray-400 mb-4">{cabin.metadata.description}</p>
+            <div className="flex flex-col justify-between flex-1 h-[148px]">
+              <div>
+                <h1 className="text-2xl font-bold mb-2">
+                  {cabin.metadata.name}
+                </h1>
+                <p className="text-gray-400 mb-4">
+                  {cabin.metadata.description}
+                </p>
+              </div>
               <div className="grid grid-cols-2 gap-2">
                 <button
                   onClick={() => setIsSwapModalOpen(true)}
@@ -213,7 +232,7 @@ export default function CabinDetail() {
                 label: "Market Cap",
                 value: `${marketCapUsd}`,
                 icon: (
-                  <Sparkle className="w-5 h-5 stroke-yellow-500 fill-yellow-500" />
+                  <Star className="w-5 h-5 stroke-yellow-500 fill-yellow-500" />
                 ),
               },
               {
@@ -281,9 +300,22 @@ export default function CabinDetail() {
                 className="relative w-full aspect-[4/3] rounded-[2rem] bg-gradient-to-br from-[#D500FF] via-[#04FF4F] to-[#F10509]"
               >
                 <div className="absolute inset-[1px] rounded-[calc(2rem-1px)] bg-[#0a0a0a] flex flex-col items-center justify-center gap-4 transition-all duration-300 ease-in-out">
-                  {state == "Cold" ? (
-                    <div className="p-4 bg-[#1a1f28] rounded-full">
-                      <Lock className="w-8 h-8 text-blue-400" />
+                  {state === "Cold" ? (
+                    <div className="relative w-16 h-16 flex items-center justify-center">
+                      {/* Circular progress ring */}
+                      {state === "Cold" && netCost !== null && (
+                        <div className="absolute inset-0 flex items-center justify-center z-20">
+                          <CircularProgress
+                            value={netCost}
+                            max={NET_COST_UNLOCK_LIMIT}
+                          />
+                        </div>
+                      )}
+
+                      {/* Lock icon */}
+                      <div className="p-4 bg-[#1a1f28] rounded-full z-10">
+                        <Lock className="w-8 h-8 text-blue-400" />
+                      </div>
                     </div>
                   ) : (
                     <div className="p-4 bg-[#1a1f28] rounded-full">
@@ -304,7 +336,10 @@ export default function CabinDetail() {
 
                     {state == "Cold" ? (
                       <p className="text-sm text-zinc-400">
-                        Trade this Aesthetic to unlock
+                        $
+                        {NET_COST_UNLOCK_LIMIT * 1000 -
+                          Number.parseFloat(netCost!.toFixed(1)) / 0.001}{" "}
+                        in volume required to unlock
                       </p>
                     ) : (
                       <p className="text-sm text-zinc-400">
@@ -324,8 +359,10 @@ export default function CabinDetail() {
               </button>
             )}
             <p className="mt-1 text-sm text-zinc-400 text-center">
-              Join <span className="font-semibold text-blue-500">34,554+ </span>{" "}
-              others to generate in this aesthetic
+              <span className="font-semibold text-green-500">
+                🚀 {totalImagesGenerated.toString()}{" "}
+              </span>{" "}
+              images have been generated in this Aesthetic
             </p>
           </div>
 

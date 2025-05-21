@@ -84,7 +84,7 @@ export function TokenTile({ token }: TokenTileProps) {
           <div className="font-bold text-[20px] mt-0.5">
             {token.metadata.name}
           </div>
-          <div className="text-[16px] font-medium text-[#AAAAAA] truncate">
+          <div className="text-[16px] font-medium text-[#AAAAAA] truncate max-w-[140px] sm:max-w-[320px]">
             {token.metadata.description}
           </div>
         </div>
