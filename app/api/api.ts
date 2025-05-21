@@ -49,7 +49,7 @@ export class FlaunchClient {
           creatorAddress: cfg.creatorAddress,
           revenueManagerAddress: cfg.revenueManagerAddress,
           marketCap: "10000000000",
-          fairLaunchDuration: "1800",
+          fairLaunchDuration: "0", //change?
         //   fairLaunchSupply: "0",
         //   websiteUrl: cfg.websiteUrl,
         //   telegramUrl: cfg.telegramUrl,

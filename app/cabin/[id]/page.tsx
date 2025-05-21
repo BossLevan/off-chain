@@ -336,10 +336,8 @@ export default function CabinDetail() {
 
                     {state == "Cold" ? (
                       <p className="text-sm text-zinc-400">
-                        $
-                        {NET_COST_UNLOCK_LIMIT * 1000 -
-                          Number.parseFloat(netCost!.toFixed(1)) / 0.001}{" "}
-                        in volume required to unlock
+                        ${NET_COST_UNLOCK_LIMIT * 100 - netCost! * 100} in
+                        volume required to unlock
                       </p>
                     ) : (
                       <p className="text-sm text-zinc-400">
