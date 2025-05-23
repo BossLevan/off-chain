@@ -175,87 +175,133 @@ export default function CabinDetail() {
         </div>
       </header>
 
-      {/* Main Content - Scrollable */}
+      {/* Main Content */}
       <div className="flex-1 overflow-y-auto">
-        <div className="max-w-[480px] mx-auto px-4 pb-48">
+        <div className="max-w-[480px] mx-auto px-4 pb-0">
           {/* Hero */}
-          <div className="flex items-start space-x-4 mb-6 pt-4">
-            <AsyncTokenImage
-              imageIpfsUri={cabin.baseURI}
-              alt={cabin.metadata.name}
-              size={148}
-            />
-            <div className="flex flex-col justify-between flex-1 h-[148px]">
-              <div>
-                <h1 className="text-2xl font-bold mb-2">
-                  {cabin.metadata.name}
-                </h1>
-                <p className="text-gray-400 mb-4">
-                  {cabin.metadata.description}
-                </p>
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <button
-                  onClick={() => setIsSwapModalOpen(true)}
-                  className="bg-[#1a1f28] text-white py-3 rounded-full font-medium text-sm"
-                >
-                  Swap
-                </button>
-                <button
-                  onClick={() => {
-                    if (isMobile) {
-                      window.location.href = `https://flaunch.gg/base/coin/${id}`; // opens in same tab (better UX for mobile)
-                    } else {
-                      window.open(
-                        `https://flaunch.gg/base/coin/${id}`,
-                        "_blank",
-                      );
-                    }
-                  }}
-                  className="bg-blue-500 text-white py-3 rounded-full font-medium text-sm"
-                >
-                  Buy
-                </button>
+          <div className="pt-4 mb-4 sm:mb-0">
+            <div className="flex items-start space-x-4 mb-2">
+              <AsyncTokenImage
+                imageIpfsUri={cabin.baseURI}
+                alt={cabin.metadata.name}
+                size={isMobile ? 120 : 150}
+              />
+              <div className="flex flex-col justify-between flex-1 h-[80px] sm:h-[120px]">
+                <div>
+                  <h1 className="text-xl sm:text-2xl font-bold mb-2 sm:mb-2">
+                    {cabin.metadata.name}
+                  </h1>
+                  <p className="text-gray-400 text-sm sm:text-base line-clamp-2 sm:line-clamp-3 mb-3 sm:mb-4">
+                    {cabin.metadata.description}
+                  </p>
+                </div>
+
+                {/* Mobile Buttons - Under description, bottom aligned */}
+                <div className="grid grid-cols-2 gap-2 sm:hidden">
+                  <button
+                    onClick={() => setIsSwapModalOpen(true)}
+                    className="bg-[#1a1f28] text-white py-2 px-3 rounded-full font-medium text-xs"
+                  >
+                    Swap
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (isMobile) {
+                        window.location.href = `https://flaunch.gg/base/coin/${id}`;
+                      } else {
+                        window.open(
+                          `https://flaunch.gg/base/coin/${id}`,
+                          "_blank",
+                        );
+                      }
+                    }}
+                    className="bg-blue-500 text-white py-2 px-3 rounded-full font-medium text-xs"
+                  >
+                    Buy
+                  </button>
+                </div>
+
+                {/* Desktop Buttons */}
+                <div className="hidden sm:grid grid-cols-2 gap-2">
+                  <button
+                    onClick={() => setIsSwapModalOpen(true)}
+                    className="bg-[#1a1f28] text-white py-3 rounded-full font-medium text-sm"
+                  >
+                    Swap
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (isMobile) {
+                        window.location.href = `https://flaunch.gg/base/coin/${id}`;
+                      } else {
+                        window.open(
+                          `https://flaunch.gg/base/coin/${id}`,
+                          "_blank",
+                        );
+                      }
+                    }}
+                    className="bg-blue-500 text-white py-3 rounded-full font-medium text-sm"
+                  >
+                    Buy
+                  </button>
+                </div>
               </div>
             </div>
           </div>
 
           {/* Stats Section */}
-          <div className="grid grid-cols-3 gap-2 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-2 mt-0 mb-6 sm:pt-4">
             {[
               {
                 label: "Volume (24h)",
                 value: `${volumeUsd}`,
-                icon: <ChevronsUp className="w-5 h-5 text-green-400" />,
+                icon: (
+                  <ChevronsUp className="w-6 h-6 sm:w-5 sm:h-5 text-green-400" />
+                ),
               },
               {
                 label: "Market Cap",
                 value: `${marketCapUsd}`,
                 icon: (
-                  <Star className="w-5 h-5 stroke-yellow-500 fill-yellow-500" />
+                  <Star className="w-6 h-6 sm:w-5 sm:h-5 stroke-yellow-500 fill-yellow-500" />
                 ),
               },
               {
                 label: "Patrons",
                 value: cabin.totalHolders,
-                icon: <Heart className="w-5 h-5 stroke-red-500 fill-red-500" />,
+                icon: (
+                  <Heart className="w-6 h-6 sm:w-5 sm:h-5 stroke-red-500 fill-red-500" />
+                ),
               },
             ].map((stat, i) => (
               <div
                 key={i}
-                className="bg-[#13161d] rounded-2xl p-4 border border-[#292f3f] text-center"
+                className="bg-[#13161d] rounded-2xl p-4 border border-[#292f3f]"
               >
-                <p className="text-gray-400 text-sm mb-2">{stat.label}</p>
-                <div className="flex items-center justify-center gap-2">
-                  {stat.icon}
-                  <p className="text-xl font-header font-semibold">
+                {/* Mobile Layout */}
+                <div className="flex sm:hidden items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    {stat.icon}
+                    <p className="text-gray-400 text-sm">{stat.label}</p>
+                  </div>
+                  <p className="text-lg font-header font-semibold">
                     {stat.value}
                   </p>
+                </div>
+
+                {/* Desktop Layout */}
+                <div className="hidden sm:flex sm:flex-col sm:text-center">
+                  <p className="text-gray-400 text-sm mb-2">{stat.label}</p>
+                  <div className="flex items-center justify-center gap-2">
+                    {stat.icon}
+                    <p className="text-xl font-header font-semibold">
+                      {stat.value}
+                    </p>
+                  </div>
                 </div>
               </div>
             ))}
           </div>
-
           {/* Upload Section */}
           <div className="mb-8">
             <h2 className="text-xl font-bold mb-4">Upload Your Image</h2>
