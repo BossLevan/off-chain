@@ -448,17 +448,7 @@ export default function CabinDetail() {
           {/* Social */}
           <section className="mb-8">
             <h2 className="text-xl font-bold mb-4">Socials</h2>
-            <div className="bg-[#13161d] rounded-2xl p-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <Twitter className="w-5 h-5 text-blue-400" />
-                  <span className="text-gray-400">Twitter</span>
-                </div>
-                <span className="font-header font-medium">
-                  {cabin.metadata.twitter ?? ""}
-                </span>
-              </div>
-            </div>
+            <p>No socials available</p>
           </section>
         </div>
       </div>
