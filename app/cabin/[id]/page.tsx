@@ -188,10 +188,10 @@ export default function CabinDetail() {
               />
               <div className="flex flex-col justify-between flex-1 h-[80px] sm:h-[120px]">
                 <div>
-                  <h1 className="text-xl sm:text-2xl font-bold mb-2 sm:mb-2">
+                  <h1 className="text-xl sm:text-2xl font-bold mb-1 sm:mb-2">
                     {cabin.metadata.name}
                   </h1>
-                  <p className="text-gray-400 text-sm sm:text-base line-clamp-2 sm:line-clamp-3 mb-3 sm:mb-4">
+                  <p className="text-gray-400 text-sm sm:text-base line-clamp-2 sm:line-clamp-3 mb-2 sm:mb-4">
                     {cabin.metadata.description}
                   </p>
                 </div>
@@ -200,7 +200,7 @@ export default function CabinDetail() {
                 <div className="grid grid-cols-2 gap-2 sm:hidden">
                   <button
                     onClick={() => setIsSwapModalOpen(true)}
-                    className="bg-[#1a1f28] text-white py-2 px-3 rounded-full font-medium text-xs"
+                    className="bg-[#1a1f28] text-white py-3 px-3 rounded-full font-medium text-xs"
                   >
                     Swap
                   </button>
