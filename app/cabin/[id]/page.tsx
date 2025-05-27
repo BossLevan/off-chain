@@ -38,6 +38,8 @@ import { NET_COST_UNLOCK_LIMIT } from "@/lib/constants";
 
 export default function CabinDetail() {
   const params = useParams();
+  const isMobile = useIsMobile();
+
   const [isSwapModalOpen, setIsSwapModalOpen] = useState(false);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [imageGenLoading, setImageGenLoading] = useState(false);
@@ -45,7 +47,6 @@ export default function CabinDetail() {
   const [imageUrl, setImageUrl] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const isMobile = /iPhone|Android|iPad/i.test(navigator.userAgent);
   const [state, setState] = useState<"Warm" | "Cold">("Cold");
   const submitDataRef = useRef(new FormData());
   const [marketCapUsd, setMarketCapUsd] = useState<string | "0">("0");
@@ -522,4 +523,18 @@ export default function CabinDetail() {
       />
     </div>
   );
+}
+
+export function useIsMobile(breakpoint = 640) {
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < breakpoint);
+    check();
+
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, [breakpoint]);
+
+  return isMobile;
 }
