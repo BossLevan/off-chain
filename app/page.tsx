@@ -128,6 +128,13 @@ export default function App() {
     return null;
   }, [context, handleAddFrame, frameAdded]);
 
+  // The setFrameReady() function is called when your mini-app is ready to be shown
+  useEffect(() => {
+    if (!isFrameReady) {
+      setFrameReady();
+    }
+  }, [setFrameReady, isFrameReady]);
+
   useEffect(() => {
     // Only show toast if it hasn't been shown yet and the param exists
     if (searchParams.get("toast") === "created" && !toastShownRef.current) {
