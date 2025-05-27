@@ -109,7 +109,7 @@ export default function App() {
         <button
           type="button"
           onClick={handleAddFrame}
-          className="cursor-pointer bg-transparent font-semibold text-sm"
+          className="cursor-pointer bg-transparent font-semibold text-[12px] md:text-sm"
         >
           + SAVE FRAME
         </button>
@@ -118,7 +118,7 @@ export default function App() {
 
     if (frameAdded) {
       return (
-        <div className="flex items-center space-x-1 text-sm font-semibold animate-fade-out">
+        <div className="flex items-center space-x-1 text-[12px] md:text-sm font-semibold animate-fade-out">
           <Check />
           <span>SAVED</span>
         </div>
@@ -150,22 +150,24 @@ export default function App() {
         <div className="safe-top" />
         <div className="max-w-[480px] mx-auto px-4 py-5 flex justify-between items-center">
           <div className="flex items-center space-x-2">
-            <ArrowUpCircle className="w-6 h-6 text-orange-500" />
-            <span className="text-xl font-medium">
+            <ArrowUpCircle className="w-5 h-5 md:w-6 md:h-6 text-orange-500" />
+            <span className="text-[16px] md:text-xl font-medium">
               Off-Chain
-              <span className="text-[1.0em] align-[0.25em] ml-0.5">™</span>
+              <span className="text-[0.8em] md:text-[1.0em] align-[0.25em] ml-0.5">
+                ™
+              </span>
             </span>
           </div>
-          <div className="flex space-x-4">
+          <div className="flex space-x-3 md:space-x-4">
             <Link
               href="/about"
-              className="text-blue-500 font-bold bg-zinc-900 px-4 py-2.5 rounded-full"
+              className="text-blue-500 font-bold bg-zinc-900 px-3 py-2 md:px-4 md:py-2.5 rounded-full text-sm md:text-base"
             >
               About
             </Link>
             <Link
               href="/login"
-              className="bg-blue-500 font-bold px-4 py-2.5 rounded-full"
+              className="bg-blue-500 font-bold px-3 py-2 md:px-4 md:py-2.5 rounded-full text-sm md:text-base"
             >
               Login
             </Link>
@@ -177,7 +179,7 @@ export default function App() {
       <div className="flex-1 overflow-y-auto">
         <div className="w-full max-w-[480px] mx-auto px-4 pb-28">
           <div className="flex items-center justify-between my-4">
-            <h1 className="text-2xl font-bold">Aesthetics</h1>
+            <h1 className="text-[20px] md:text-2xl font-bold">Aesthetics</h1>
           </div>
 
           <div className="flex space-x-2 mb-6">
@@ -194,7 +196,7 @@ export default function App() {
                   }`}
                 >
                   <button
-                    className={`px-4 py-2 w-full rounded-[calc(0.75rem-1px)] font-medium bg-zinc-900 transition-colors ${
+                    className={`px-3 py-2 md:px-4 w-full rounded-[calc(0.75rem-1px)] font-medium bg-zinc-900 transition-colors text-[13px] md:text-base ${
                       isActive ? "text-white" : "text-gray-400"
                     }`}
                   >
@@ -208,21 +210,23 @@ export default function App() {
           {/* Loading State */}
           {loading && (
             <div className="flex justify-center items-center py-20 text-gray-400">
-              <Loader2 className="animate-spin w-6 h-6 mr-2" />
-              Loading tokens...
+              <Loader2 className="animate-spin w-5 h-5 md:w-6 md:h-6 mr-2" />
+              <span className="text-[13px] md:text-base">
+                Loading tokens...
+              </span>
             </div>
           )}
 
           {/* Error State */}
           {error && (
-            <div className="text-red-500 text-center py-20">
+            <div className="text-red-500 text-center py-20 text-[13px] md:text-base">
               Error loading tokens: {error}
             </div>
           )}
 
           {/* Token List */}
           {!loading && !error && (
-            <div className="space-y-4">
+            <div className="space-y-2">
               {cabins?.map(
                 (cabin) =>
                   cabin.metadata != null && (

@@ -164,13 +164,13 @@ export default function CabinDetail() {
         <div className="max-w-[480px] mx-auto px-4 py-4 flex justify-between items-center">
           <Link
             href="/"
-            className="text-lg font-medium flex items-center space-x-2"
+            className="text-base sm:text-lg font-medium flex items-center space-x-2"
           >
-            <ArrowLeft className="w-6 h-6" />
+            <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6" />
             <span>Back</span>
           </Link>
           <button className="p-2 rounded-full bg-zinc-800">
-            <Share2 className="w-5 h-5" />
+            <Share2 className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
         </div>
       </header>
@@ -179,28 +179,28 @@ export default function CabinDetail() {
       <div className="flex-1 overflow-y-auto">
         <div className="max-w-[480px] mx-auto px-4 pb-0">
           {/* Hero */}
-          <div className="pt-4 mb-4 sm:mb-0">
-            <div className="flex items-start space-x-4 mb-2">
+          <div className="pt-4 mb-0">
+            <div className="flex items-start space-x-4 mb-0">
               <AsyncTokenImage
                 imageIpfsUri={cabin.baseURI}
                 alt={cabin.metadata.name}
-                size={isMobile ? 120 : 150}
+                size={isMobile ? 104 : 150}
               />
-              <div className="flex flex-col justify-between flex-1 h-[80px] sm:h-[120px]">
+              <div className="flex flex-col justify-between flex-1 h-[100px] sm:h-[120px]">
                 <div>
-                  <h1 className="text-xl sm:text-2xl font-bold mb-1 sm:mb-2">
+                  <h1 className="text-lg sm:text-2xl font-bold mb-1 sm:mb-2">
                     {cabin.metadata.name}
                   </h1>
-                  <p className="text-gray-400 text-sm sm:text-base line-clamp-2 sm:line-clamp-3 mb-2 sm:mb-4">
+                  <p className="text-gray-400 text-xs sm:text-base line-clamp-2 sm:line-clamp-3 mb-2 sm:mb-4">
                     {cabin.metadata.description}
                   </p>
                 </div>
 
-                {/* Mobile Buttons - Under description, bottom aligned */}
-                <div className="grid grid-cols-2 gap-2 sm:hidden">
+                {/* Buttons - Same layout for mobile and desktop */}
+                <div className="grid grid-cols-2 gap-2">
                   <button
                     onClick={() => setIsSwapModalOpen(true)}
-                    className="bg-[#1a1f28] text-white py-3 px-3 rounded-full font-medium text-xs"
+                    className="bg-[#1a1f28] text-white py-2 sm:py-3 px-3 rounded-full font-medium text-xs sm:text-sm"
                   >
                     Swap
                   </button>
@@ -215,32 +215,7 @@ export default function CabinDetail() {
                         );
                       }
                     }}
-                    className="bg-blue-500 text-white py-2 px-3 rounded-full font-medium text-xs"
-                  >
-                    Buy
-                  </button>
-                </div>
-
-                {/* Desktop Buttons */}
-                <div className="hidden sm:grid grid-cols-2 gap-2">
-                  <button
-                    onClick={() => setIsSwapModalOpen(true)}
-                    className="bg-[#1a1f28] text-white py-3 rounded-full font-medium text-sm"
-                  >
-                    Swap
-                  </button>
-                  <button
-                    onClick={() => {
-                      if (isMobile) {
-                        window.location.href = `https://flaunch.gg/base/coin/${id}`;
-                      } else {
-                        window.open(
-                          `https://flaunch.gg/base/coin/${id}`,
-                          "_blank",
-                        );
-                      }
-                    }}
-                    className="bg-blue-500 text-white py-3 rounded-full font-medium text-sm"
+                    className="bg-blue-500 text-white py-2 sm:py-3 px-3 rounded-full font-medium text-xs sm:text-sm"
                   >
                     Buy
                   </button>
@@ -249,52 +224,42 @@ export default function CabinDetail() {
             </div>
           </div>
 
-          {/* Stats Section */}
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-2 mt-0 mb-6 sm:pt-4">
+          {/* Stats Section - Horizontal layout for both mobile and desktop */}
+          <div className="grid grid-cols-3 gap-2 sm:gap-2 mt-0 mb-6 pt-4">
             {[
               {
                 label: "Volume (24h)",
                 value: `${volumeUsd}`,
                 icon: (
-                  <ChevronsUp className="w-6 h-6 sm:w-5 sm:h-5 text-green-400" />
+                  <ChevronsUp className="w-4 h-4 sm:w-5 sm:h-5 text-green-400" />
                 ),
               },
               {
                 label: "Market Cap",
                 value: `${marketCapUsd}`,
                 icon: (
-                  <Star className="w-6 h-6 sm:w-5 sm:h-5 stroke-yellow-500 fill-yellow-500" />
+                  <Star className="w-4 h-4 sm:w-5 sm:h-5 stroke-yellow-500 fill-yellow-500" />
                 ),
               },
               {
                 label: "Patrons",
                 value: cabin.totalHolders,
                 icon: (
-                  <Heart className="w-6 h-6 sm:w-5 sm:h-5 stroke-red-500 fill-red-500" />
+                  <Heart className="w-4 h-4 sm:w-5 sm:h-5 stroke-red-500 fill-red-500" />
                 ),
               },
             ].map((stat, i) => (
               <div
                 key={i}
-                className="bg-[#13161d] rounded-2xl p-4 border border-[#292f3f]"
+                className="bg-[#13161d] rounded-2xl p-3 sm:p-4 border border-[#292f3f]"
               >
-                {/* Mobile Layout */}
-                <div className="flex sm:hidden items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    {stat.icon}
-                    <p className="text-gray-400 text-sm">{stat.label}</p>
-                  </div>
-                  <p className="text-lg font-header font-semibold">
-                    {stat.value}
+                <div className="flex flex-col text-center">
+                  <p className="text-gray-400 text-xs sm:text-sm mb-1 sm:mb-2">
+                    {stat.label}
                   </p>
-                </div>
-
-                {/* Desktop Layout */}
-                <div className="hidden sm:flex sm:flex-col sm:text-center">
-                  <p className="text-gray-400 text-sm mb-2">{stat.label}</p>
-                  <div className="flex items-center justify-center gap-2">
+                  <div className="flex items-center justify-center gap-1 sm:gap-2">
                     {stat.icon}
-                    <p className="text-xl font-header font-semibold">
+                    <p className="text-sm sm:text-xl font-header font-semibold">
                       {stat.value}
                     </p>
                   </div>
@@ -302,9 +267,12 @@ export default function CabinDetail() {
               </div>
             ))}
           </div>
+
           {/* Upload Section */}
           <div className="mb-8">
-            <h2 className="text-xl font-bold mb-4">Upload Your Image</h2>
+            <h2 className="text-lg sm:text-xl font-bold mb-4">
+              Upload Your Image
+            </h2>
             <input
               type="file"
               ref={fileInputRef}
@@ -325,13 +293,13 @@ export default function CabinDetail() {
                     onClick={() => fileInputRef.current?.click()}
                     className="p-2 bg-black/50 rounded-full"
                   >
-                    <ImageIcon className="w-5 h-5" />
+                    <ImageIcon className="w-4 h-4 sm:w-5 sm:h-5" />
                   </button>
                   <button
                     onClick={removeUploadedImage}
                     className="p-2 bg-black/50 rounded-full text-red-500"
                   >
-                    <X className="w-5 h-5" />
+                    <X className="w-4 h-4 sm:w-5 sm:h-5" />
                   </button>
                 </div>
               </div>
@@ -347,7 +315,7 @@ export default function CabinDetail() {
               >
                 <div className="absolute inset-[1px] rounded-[calc(2rem-1px)] bg-[#0a0a0a] flex flex-col items-center justify-center gap-4 transition-all duration-300 ease-in-out">
                   {state === "Cold" ? (
-                    <div className="relative w-16 h-16 flex items-center justify-center">
+                    <div className="relative w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center">
                       {/* Circular progress ring */}
                       {state === "Cold" && netCost !== null && (
                         <div className="absolute inset-0 flex items-center justify-center z-20">
@@ -359,34 +327,34 @@ export default function CabinDetail() {
                       )}
 
                       {/* Lock icon */}
-                      <div className="p-4 bg-[#1a1f28] rounded-full z-10">
-                        <Lock className="w-8 h-8 text-blue-400" />
+                      <div className="p-3 sm:p-4 bg-[#1a1f28] rounded-full z-10">
+                        <Lock className="w-6 h-6 sm:w-8 sm:h-8 text-blue-400" />
                       </div>
                     </div>
                   ) : (
-                    <div className="p-4 bg-[#1a1f28] rounded-full">
-                      <Upload className="w-8 h-8 text-blue-400" />
+                    <div className="p-3 sm:p-4 bg-[#1a1f28] rounded-full">
+                      <Upload className="w-6 h-6 sm:w-8 sm:h-8 text-blue-400" />
                     </div>
                   )}
 
                   <div className="text-center">
                     {state == "Cold" ? (
-                      <p className="text-lg font-medium text-white mb-2">
+                      <p className="text-base sm:text-lg font-medium text-white mb-2">
                         Credits are Low
                       </p>
                     ) : (
-                      <p className="text-lg font-medium text-white mb-2">
+                      <p className="text-base sm:text-lg font-medium text-white mb-2">
                         {isUploading ? "Uploading..." : "Upload your image"}
                       </p>
                     )}
 
                     {state == "Cold" ? (
-                      <p className="text-sm text-zinc-400">
+                      <p className="text-xs sm:text-sm text-zinc-400">
                         ${NET_COST_UNLOCK_LIMIT * 100 - netCost! * 100} in
                         volume required to unlock
                       </p>
                     ) : (
-                      <p className="text-sm text-zinc-400">
+                      <p className="text-xs sm:text-sm text-zinc-400">
                         {isUploading
                           ? "Please wait..."
                           : "Click to browse or drag and drop"}
@@ -402,7 +370,7 @@ export default function CabinDetail() {
                 </div>
               </button>
             )}
-            <p className="mt-1 text-sm text-zinc-400 text-center">
+            <p className="mt-1 text-xs sm:text-sm text-zinc-400 text-center">
               <span className="font-semibold text-green-500">
                 🚀 {totalImagesGenerated.toString()}{" "}
               </span>{" "}
@@ -415,21 +383,29 @@ export default function CabinDetail() {
 
           {/* Details */}
           <section className="mb-8">
-            <h2 className="text-xl font-bold mb-4">Aesthetic Details</h2>
+            <h2 className="text-lg sm:text-xl font-bold mb-4">
+              Aesthetic Details
+            </h2>
             <div className="bg-[#13161d] rounded-2xl p-4 space-y-4">
               {[
                 {
-                  icon: <Calendar className="w-5 h-5 text-green-500" />,
+                  icon: (
+                    <Calendar className="w-4 h-4 sm:w-5 sm:h-5 text-green-500" />
+                  ),
                   label: "Date Created",
                   value: formatDateFromTimestamp(cabin.createdAt),
                 },
                 {
-                  icon: <DollarSign className="w-5 h-5 text-purple-500" />,
+                  icon: (
+                    <DollarSign className="w-4 h-4 sm:w-5 sm:h-5 text-purple-500" />
+                  ),
                   label: "Ticker",
                   value: cabin.metadata.symbol,
                 },
                 {
-                  icon: <User className="w-5 h-5 text-orange-500" />,
+                  icon: (
+                    <User className="w-4 h-4 sm:w-5 sm:h-5 text-orange-500" />
+                  ),
                   label: "Creator",
                   value: "kosi.base.eth",
                 },
@@ -437,9 +413,13 @@ export default function CabinDetail() {
                 <div key={i} className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     {item.icon}
-                    <span className="text-gray-400">{item.label}</span>
+                    <span className="text-gray-400 text-sm sm:text-base">
+                      {item.label}
+                    </span>
                   </div>
-                  <span className="font-header font-medium">{item.value}</span>
+                  <span className="font-header font-medium text-sm sm:text-base">
+                    {item.value}
+                  </span>
                 </div>
               ))}
             </div>
@@ -447,8 +427,8 @@ export default function CabinDetail() {
 
           {/* Social */}
           <section className="mb-8">
-            <h2 className="text-xl font-bold mb-4">Socials</h2>
-            <p>No socials available</p>
+            <h2 className="text-lg sm:text-xl font-bold mb-4">Socials</h2>
+            <p className="text-sm sm:text-base">No socials available</p>
           </section>
         </div>
       </div>
@@ -456,15 +436,7 @@ export default function CabinDetail() {
       {/* Fixed Bottom */}
       <div className="sticky bottom-0 bg-black/50 backdrop-blur-lg z-10">
         <div className="max-w-[480px] mx-auto px-4 py-4 space-y-4">
-          {/* <div className="flex flex-wrap items-center text-gray-400 text-sm">
-            <span className="text-green-500 mr-2">✓</span>
-            <span>Hold at least {cabin.requiredBalance}. </span>
-            <button className="text-blue-500 underline hover:text-blue-400 mx-1">
-              Buy here
-            </button>
-            <span>(Bal: 0.00 $POLAROID)</span>
-          </div> */}
-          <div className="flex items-center space-x-2 text-gray-400 text-sm">
+          <div className="flex items-center space-x-2 text-gray-400 text-xs sm:text-sm">
             <span
               className={uploadedImage ? "text-green-500" : "text-zinc-500"}
             >
@@ -474,7 +446,7 @@ export default function CabinDetail() {
           </div>
           <button
             onClick={generateImage}
-            className={`w-full py-3 rounded-full font-medium text-lg ${
+            className={`w-full py-3 rounded-full font-medium text-base sm:text-lg ${
               uploadedImage
                 ? "bg-blue-500 hover:bg-blue-600"
                 : "bg-zinc-800 cursor-not-allowed"
@@ -489,7 +461,7 @@ export default function CabinDetail() {
 
       {imageGenLoading && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex flex-col items-center justify-center">
-          <div className="relative w-64 h-64">
+          <div className="relative w-48 h-48 sm:w-64 sm:h-64">
             {/* Animated gradient circle */}
             <div
               className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 animate-spin"
@@ -499,12 +471,12 @@ export default function CabinDetail() {
             {/* Inner circle */}
             <div className="absolute inset-2 rounded-full bg-black flex items-center justify-center">
               <div className="flex flex-col items-center">
-                <div className="relative w-16 h-16 mb-4">
+                <div className="relative w-12 h-12 sm:w-16 sm:h-16 mb-4">
                   {/* Animated dots */}
                   {[...Array(3)].map((_, i) => (
                     <div
                       key={i}
-                      className="absolute w-4 h-4 bg-blue-500 rounded-full"
+                      className="absolute w-3 h-3 sm:w-4 sm:h-4 bg-blue-500 rounded-full"
                       style={{
                         left: "50%",
                         top: "50%",
@@ -514,12 +486,9 @@ export default function CabinDetail() {
                     ></div>
                   ))}
                 </div>
-                <h3 className="text-xl font-bold text-white mb-2">
+                <h3 className="text-lg sm:text-xl font-bold text-white mb-2">
                   Creating Magic
                 </h3>
-                {/* <p className="text-gray-400 text-center max-w-xs">
-                  Generating your stylized image...
-                </p> */}
               </div>
             </div>
           </div>
