@@ -165,12 +165,12 @@ export default function App() {
             >
               About
             </Link>
-            <Link
+            {/* <Link
               href="/login"
               className="bg-blue-500 font-bold px-3 py-2 md:px-4 md:py-2.5 rounded-full text-sm md:text-base"
             >
               Login
-            </Link>
+            </Link> */}
           </div>
         </div>
       </header>

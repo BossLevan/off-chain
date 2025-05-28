@@ -35,10 +35,12 @@ import { convertStatToUsd } from "@/lib/utils/convertStatsToUsd";
 import CircularProgress from "@/app/components/CircularProgress";
 import { listenToNetCost } from "@/app/api/firebase";
 import { NET_COST_UNLOCK_LIMIT } from "@/lib/constants";
+import { useOpenUrl } from "@coinbase/onchainkit/minikit";
 
 export default function CabinDetail() {
   const params = useParams();
   const isMobile = useIsMobile();
+  const openUrl = useOpenUrl();
 
   const [isSwapModalOpen, setIsSwapModalOpen] = useState(false);
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
@@ -199,16 +201,20 @@ export default function CabinDetail() {
               <AsyncTokenImage
                 imageIpfsUri={cabin.baseURI}
                 alt={cabin.metadata.name}
-                size={isMobile ? 104 : 150}
+                size={isMobile ? 112 : 150}
               />
               <div className="flex flex-col justify-between flex-1 h-[100px] sm:h-[120px]">
                 <div>
                   <h1 className="text-lg sm:text-2xl font-bold mb-1 sm:mb-2">
                     {cabin.metadata.name}
                   </h1>
-                  <p className="text-gray-400 text-xs sm:text-base line-clamp-2 sm:line-clamp-3 mb-2 sm:mb-4">
+                  <p className="text-gray-400 text-xs sm:text-base leading-relaxed sm:leading-normal line-clamp-2 sm:line-clamp-3 mb-2 sm:mb-4">
                     {cabin.metadata.description}
                   </p>
+                  {/* 
+                  <p className="text-gray-400 text-xs sm:text-base line-clamp-2 sm:line-clamp-3 mb-2 sm:mb-4">
+                    {cabin.metadata.description}
+                  </p> */}
                 </div>
 
                 {/* Buttons - Same layout for mobile and desktop */}
@@ -221,14 +227,15 @@ export default function CabinDetail() {
                   </button>
                   <button
                     onClick={() => {
-                      if (isMobile) {
-                        window.location.href = `https://flaunch.gg/base/coin/${id}`;
-                      } else {
-                        window.open(
-                          `https://flaunch.gg/base/coin/${id}`,
-                          "_blank",
-                        );
-                      }
+                      openUrl(`https://flaunch.gg/base/coin/${id}`);
+                      // if (isMobile) {
+                      //   window.location.href = `https://flaunch.gg/base/coin/${id}`;
+                      // } else {
+                      //   window.open(
+                      //     `https://flaunch.gg/base/coin/${id}`,
+                      //     "_blank",
+                      //   );
+                      // }
                     }}
                     className="bg-blue-500 text-white py-2 sm:py-3 px-3 rounded-full font-medium text-xs sm:text-sm"
                   >
@@ -257,8 +264,8 @@ export default function CabinDetail() {
                 ),
               },
               {
-                label: "Patrons",
-                value: cabin.totalHolders,
+                label: "Generated",
+                value: totalImagesGenerated.toString(),
                 icon: (
                   <Heart className="w-4 h-4 sm:w-5 sm:h-5 stroke-red-500 fill-red-500" />
                 ),
@@ -385,12 +392,12 @@ export default function CabinDetail() {
                 </div>
               </button>
             )}
-            <p className="mt-1 text-xs sm:text-sm text-zinc-400 text-center">
+            {/* <p className="mt-1 text-xs sm:text-sm text-zinc-400 text-center">
               <span className="font-semibold text-green-500">
                 🚀 {totalImagesGenerated.toString()}{" "}
               </span>{" "}
               images have been generated in this Aesthetic
-            </p>
+            </p> */}
           </div>
 
           {/* Gallery */}

@@ -6,7 +6,7 @@ type Props = {
 };
 
 const CircularProgress: React.FC<Props> = ({ value, max }) => {
-  const radius = 32;
+  const radius = 24;
   const stroke = 4;
   const normalizedRadius = radius - stroke / 2;
   const circumference = 2 * Math.PI * normalizedRadius;
