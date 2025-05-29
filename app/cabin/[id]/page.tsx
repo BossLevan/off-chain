@@ -6,6 +6,7 @@ import { useState, useRef, useEffect } from "react";
 import { useParams } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
+import { sdk } from "@farcaster/frame-sdk";
 import {
   ArrowLeft,
   Share2,
@@ -20,6 +21,8 @@ import {
   ChevronsUp,
   Heart,
   Lock,
+  UsersIcon,
+  Flame,
 } from "lucide-react";
 import SwapModal from "@/app/components/SwapModal";
 import AsyncTokenImage from "@/app/components/AsyncImage";
@@ -46,7 +49,9 @@ export default function CabinDetail() {
   const [uploadedImage, setUploadedImage] = useState<string | null>(null);
   const [imageGenLoading, setImageGenLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [imageGenError, setImageGenError] = useState(false);
   const [imageUrl, setImageUrl] = useState("");
+  const [userPFP, setUserPFP] = useState<string | null | undefined>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [state, setState] = useState<"Warm" | "Cold">("Cold");
@@ -73,6 +78,17 @@ export default function CabinDetail() {
     return isMobile;
   }
 
+  useEffect(() => {
+    importFarcasterProfileImage();
+  }, [sdk.context]);
+
+  const importFarcasterProfileImage = async () => {
+    const res = (await sdk.context).user.pfpUrl;
+    if (res != null) {
+      setUserPFP(res);
+    }
+  };
+
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
@@ -83,6 +99,21 @@ export default function CabinDetail() {
       submitDataRef.current.append("images", file);
       const previewUrl = URL.createObjectURL(file);
       setUploadedImage(previewUrl);
+    } catch (error) {
+      console.error("Error uploading image:", error);
+    } finally {
+      setIsUploading(false);
+    }
+  };
+
+  const showFarcasterPFP = async () => {
+    console.log("attempting to show");
+    try {
+      setIsUploading(true);
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      if (userPFP != null) {
+        setUploadedImage(userPFP);
+      }
     } catch (error) {
       console.error("Error uploading image:", error);
     } finally {
@@ -140,6 +171,8 @@ export default function CabinDetail() {
         setImageUrl(response[0]);
 
         setIsModalOpen(true);
+        //remove the uploaded image
+        setUploadedImage(null);
 
         //notify business manager to update costing
         const res = await notifyBusinessManagerClient(id, true);
@@ -152,8 +185,9 @@ export default function CabinDetail() {
       }
     } catch (err: any) {
       setImageGenLoading(false);
-      console.log("An Error Occurred While Generating Images", err);
-      throw Error(err);
+      setImageGenError(true);
+      //remove the uploaded image
+      setUploadedImage(null);
     }
   };
 
@@ -267,7 +301,7 @@ export default function CabinDetail() {
                 label: "Generated",
                 value: totalImagesGenerated.toString(),
                 icon: (
-                  <Heart className="w-4 h-4 sm:w-5 sm:h-5 stroke-red-500 fill-red-500" />
+                  <Flame className="w-4 h-4 sm:w-5 sm:h-5 stroke-red-500 fill-red-500" />
                 ),
               },
             ].map((stat, i) => (
@@ -312,7 +346,7 @@ export default function CabinDetail() {
                 />
                 <div className="absolute top-4 right-4 flex gap-2">
                   <button
-                    onClick={() => fileInputRef.current?.click()}
+                    onClick={() => showFarcasterPFP()}
                     className="p-2 bg-black/50 rounded-full"
                   >
                     <ImageIcon className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -327,11 +361,7 @@ export default function CabinDetail() {
               </div>
             ) : (
               <button
-                onClick={
-                  state == "Cold"
-                    ? () => {}
-                    : () => fileInputRef.current?.click()
-                }
+                onClick={state == "Cold" ? () => {} : () => showFarcasterPFP()}
                 disabled={isUploading}
                 className="relative w-full aspect-[4/3] rounded-[2rem] bg-gradient-to-br from-[#D500FF] via-[#04FF4F] to-[#F10509]"
               >
@@ -362,24 +392,24 @@ export default function CabinDetail() {
                   <div className="text-center">
                     {state == "Cold" ? (
                       <p className="text-base sm:text-lg font-medium text-white mb-2">
-                        Credits are Low
+                        Hold to unlock
                       </p>
                     ) : (
                       <p className="text-base sm:text-lg font-medium text-white mb-2">
-                        {isUploading ? "Uploading..." : "Upload your image"}
+                        {isUploading ? "Uploading..." : "Import from Farcaster"}
                       </p>
                     )}
 
                     {state == "Cold" ? (
                       <p className="text-xs sm:text-sm text-zinc-400">
                         ${NET_COST_UNLOCK_LIMIT * 100 - netCost! * 100} in
-                        volume required to unlock
+                        volume required to unlock this aesthetic
                       </p>
                     ) : (
                       <p className="text-xs sm:text-sm text-zinc-400">
                         {isUploading
                           ? "Please wait..."
-                          : "Click to browse or drag and drop"}
+                          : "Click to import your Farcaster Profile Picture"}
                       </p>
                     )}
                   </div>
@@ -392,12 +422,19 @@ export default function CabinDetail() {
                 </div>
               </button>
             )}
-            {/* <p className="mt-1 text-xs sm:text-sm text-zinc-400 text-center">
-              <span className="font-semibold text-green-500">
-                🚀 {totalImagesGenerated.toString()}{" "}
-              </span>{" "}
-              images have been generated in this Aesthetic
-            </p> */}
+            {state == "Warm" ? (
+              <p className="mt-1 text-xs sm:text-sm text-zinc-400 text-center">
+                Or upload another{" "}
+                <span
+                  className="text-blue-500 cursor-pointer underline"
+                  onClick={() => fileInputRef.current?.click()} // replace this with your actual upload function
+                >
+                  image
+                </span>
+              </p>
+            ) : (
+              ""
+            )}
           </div>
 
           {/* Gallery */}
@@ -416,6 +453,13 @@ export default function CabinDetail() {
                   ),
                   label: "Date Created",
                   value: formatDateFromTimestamp(cabin.createdAt),
+                },
+                {
+                  icon: (
+                    <UsersIcon className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-500" />
+                  ),
+                  label: "Holders",
+                  value: cabin.totalHolders,
                 },
                 {
                   icon: (
@@ -482,42 +526,40 @@ export default function CabinDetail() {
       </div>
 
       {imageGenLoading && (
-        <div className="fixed inset-0 bg-black/80 backdrop-blur-md z-50 flex flex-col items-center justify-center">
-          <div className="relative w-48 h-48 sm:w-64 sm:h-64">
-            {/* Animated gradient circle */}
-            <div
-              className="absolute inset-0 rounded-full bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 animate-spin"
-              style={{ animationDuration: "3s" }}
-            ></div>
+        <div className="fixed inset-0 bg-black/90 z-50 flex flex-col items-center justify-center">
+          <div className="flex items-center space-x-3">
+            {/* Spinner */}
+            <div className="w-6 h-6 border-4 border-white border-t-transparent rounded-full animate-spin" />
 
-            {/* Inner circle */}
-            <div className="absolute inset-2 rounded-full bg-black flex items-center justify-center">
-              <div className="flex flex-col items-center">
-                <div className="relative w-12 h-12 sm:w-16 sm:h-16 mb-4">
-                  {/* Animated dots */}
-                  {[...Array(3)].map((_, i) => (
-                    <div
-                      key={i}
-                      className="absolute w-3 h-3 sm:w-4 sm:h-4 bg-blue-500 rounded-full"
-                      style={{
-                        left: "50%",
-                        top: "50%",
-                        transform: "translate(-50%, -50%)",
-                        animation: `pulse 1.5s infinite ${i * 0.3}s`,
-                      }}
-                    ></div>
-                  ))}
-                </div>
-                <h3 className="text-lg sm:text-xl font-bold text-white mb-2">
-                  Creating Magic
-                </h3>
-              </div>
-            </div>
+            {/* Status text */}
+            <span className="text-white text-sm font-medium">
+              Generating Image...
+            </span>
           </div>
+        </div>
+      )}
 
-          {/* Animated percentage counter */}
-          <div className="mt-8">
-            <GenerationProgress />
+      {imageGenError && (
+        <div className="fixed inset-0 bg-black/90 z-50 flex flex-col items-center justify-center px-4 text-center">
+          <div className="text-white space-y-4 relative max-w-sm w-full">
+            {/* Small error icon */}
+            <div className="w-8 h-8 border border-red-500 rounded-full flex items-center justify-center mx-auto">
+              <span className="text-red-500 font-semibold text-lg">!</span>
+            </div>
+
+            {/* Message */}
+            <h2 className="text-lg font-semibold">Something went wrong</h2>
+            <p className="text-sm text-gray-300">
+              Please try again with another image.
+            </p>
+
+            {/* Okay button */}
+            <button
+              onClick={() => setImageGenError(false)}
+              className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
+            >
+              Okay
+            </button>
           </div>
         </div>
       )}

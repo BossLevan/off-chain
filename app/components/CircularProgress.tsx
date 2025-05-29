@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 
 type Props = {
   value: number; // current netCost
@@ -6,7 +6,22 @@ type Props = {
 };
 
 const CircularProgress: React.FC<Props> = ({ value, max }) => {
-  const radius = 24;
+  const isMobile = useIsMobile();
+  function useIsMobile(breakpoint = 640) {
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+      const check = () => setIsMobile(window.innerWidth < breakpoint);
+      check();
+
+      window.addEventListener("resize", check);
+      return () => window.removeEventListener("resize", check);
+    }, [breakpoint]);
+
+    return isMobile;
+  }
+
+  const radius = isMobile ? 24 : 30;
   const stroke = 4;
   const normalizedRadius = radius - stroke / 2;
   const circumference = 2 * Math.PI * normalizedRadius;

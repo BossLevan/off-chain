@@ -91,7 +91,7 @@ export default function App() {
   const [activeFilter, setActiveFilter] = useState("new");
 
   const addFrame = useAddFrame();
-  const openUrl = useOpenUrl();
+  const isMobile = useIsMobile();
   const { address } = useAccount();
   const searchParams = useSearchParams();
 
@@ -102,6 +102,20 @@ export default function App() {
     const frameAdded = await addFrame();
     setFrameAdded(Boolean(frameAdded));
   }, [addFrame, setFrameAdded]);
+
+  function useIsMobile(breakpoint = 640) {
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+      const check = () => setIsMobile(window.innerWidth < breakpoint);
+      check();
+
+      window.addEventListener("resize", check);
+      return () => window.removeEventListener("resize", check);
+    }, [breakpoint]);
+
+    return isMobile;
+  }
 
   const saveFrameButton = useMemo(() => {
     if (context && !context.client.added) {
@@ -226,7 +240,7 @@ export default function App() {
 
           {/* Token List */}
           {!loading && !error && (
-            <div className="space-y-2">
+            <div className={isMobile ? "space-y-3" : "space-y-2"}>
               {cabins?.map(
                 (cabin) =>
                   cabin.metadata != null && (
