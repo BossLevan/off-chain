@@ -44,7 +44,7 @@ export async function POST(req: Request) {
     const output = await replicate.run("openai/gpt-image-1", {
       input: {
         prompt,
-        input_images: farcasterImageUrl == null ? imageLinks : farcasterImageUrl,
+        input_images: farcasterImageUrl == null ? imageLinks : [farcasterImageUrl],
         openai_api_key: process.env.OPENAI_API_KEY,
         aspect_ratio: "3:2",
       },
