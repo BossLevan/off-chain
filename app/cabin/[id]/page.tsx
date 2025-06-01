@@ -30,7 +30,7 @@ export async function generateMetadata({
     const imageUrl = img || cabinImageUrl;
     return {
       openGraph: {
-        images: [imageUrl],
+        images: [imageUrl!],
       },
       other: {
         "fc:frame": JSON.stringify({

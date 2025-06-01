@@ -24,7 +24,7 @@ export async function generateMetadata({ params, searchParams }: {
 
   return {
     openGraph: {
-      images: [imageUrl],
+      images: [imageUrl!],
     },
     other: {
       "fc:frame": JSON.stringify({
