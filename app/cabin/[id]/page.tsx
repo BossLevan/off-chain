@@ -8,16 +8,6 @@ import { SingleTokenDetailed } from "@/lib/utils/types";
 import { SINGLE_COIN_QUERY } from "@/lib/utils/queries";
 import CabinDetailPage from "@/app/components/CabinDetailPage";
 
-export default function CabinDetailCabinPage({
-  params,
-  searchParams,
-}: {
-  params: { id: string };
-  searchParams: { img?: string };
-}) {
-  return <CabinDetailPage id={params.id} />;
-}
-
 // 1. Generate Metadata
 export async function generateMetadata({
   params,
@@ -57,6 +47,16 @@ export async function generateMetadata({
       }),
     },
   };
+}
+
+export default function CabinDetailCabinPage({
+  params,
+  searchParams,
+}: {
+  params: { id: string };
+  searchParams: { img?: string };
+}) {
+  return <CabinDetailPage id={params.id} />;
 }
 
 // // Server-side rendering for meta tags
