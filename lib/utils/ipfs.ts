@@ -1,5 +1,5 @@
 export const convertIpfsToPinataUrl = async (metadataIpfsUri: string): Promise<string> => {
-    const ipfsGateway = "https://ipfs.io/ipfs/";
+    const ipfsGateway = "https://orange-encouraging-guanaco-614.mypinata.cloud/";
   
     if (!metadataIpfsUri.startsWith("ipfs://")) {
       throw new Error('Invalid IPFS URI. It should start with "ipfs://".');

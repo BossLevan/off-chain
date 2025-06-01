@@ -27,8 +27,7 @@ export async function generateMetadata({
 
     const ipfsHash = response?.collectionToken?.baseURI;
     const cabinImageUrl = await convertIpfsToPinataUrl(ipfsHash);
-    const imageUrl =
-      "https://firebasestorage.googleapis.com/v0/b/off-chain-c1547.firebasestorage.app/o/contract-images%2F0x651d8fe5e89b38e94a09bf29c194e1726b676408%2Fimage-1-1747796245671?alt=media&token=7bf185f3-83b6-47f4-80e4-c0f3f9277bf9";
+    const imageUrl = img || cabinImageUrl;
     return {
       openGraph: {
         images: [imageUrl],
@@ -49,7 +48,7 @@ export async function generateMetadata({
       },
     };
   } catch {
-    console.log("AN error occured");
+    console.log("An error occured");
     return {
       openGraph: {},
       other: {},
