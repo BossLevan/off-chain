@@ -56,7 +56,9 @@ export default function CabinDetailCabinPage({
   params: { id: string };
   searchParams: { img?: string };
 }) {
-  return <CabinDetailPage id={params.id} />;
+  <main>
+    return <CabinDetailPage id={params.id} />;
+  </main>;
 }
 
 // // Server-side rendering for meta tags
