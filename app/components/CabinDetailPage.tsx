@@ -428,7 +428,7 @@ export default function CabinDetailPage({ id }: { id: string }) {
                       </p>
                     ) : (
                       <p className="text-base sm:text-lg font-medium text-white mb-2">
-                        {isUploading ? "Uploading..." : "Import from Farcaster"}
+                        {isUploading ? "Uploading..." : "Import PFP"}
                       </p>
                     )}
 
