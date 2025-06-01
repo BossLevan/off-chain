@@ -1,5 +1,5 @@
 import { getFirestore, doc, setDoc, getDoc, updateDoc } from "firebase/firestore";
-import { getStorage, ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { getStorage, ref, uploadBytes, getDownloadURL, uploadString } from "firebase/storage";
 import { app } from "@/app/firebase_config"
 import { GraphQLClient } from "graphql-request";
 import { SingleCoinVolumeResponse } from "@/lib/utils/types";
@@ -101,71 +101,82 @@ export async function uploadImagesToStorage(
     }
   }
 
-  export async function uploadImagesToStorageTemporary(
-    imageFiles: File[]
-  ): Promise<string[]> {
-    try {
-      // Validate image count
-      if (!imageFiles || imageFiles.length < 1 || imageFiles.length > 4) {
-        throw new Error("Image count must be between 1 and 4.");
-      }
-  
-      const uploadPromises = imageFiles.map(async (file, index) => {
-        try {
-          if (!file || !(file instanceof File)) {
-            throw new Error(`Invalid file at index ${index}.`);
-          }
-          
-          // Create a blob from the file and specify content type
-          const blob = new Blob([await file.arrayBuffer()], { type: file.type });
-          
-          // Use a more reliable path format with timestamp to avoid conflicts
-          const timestamp = new Date().getTime();
-          const fileName = `image-${index + 1}-${timestamp}`;
-          const storageRef = ref(storage, `temporary-images/${fileName}`);
-          
-          // Log upload attempt details
-          console.log(`Attempting to upload file: ${file.name}, size: ${file.size}, type: ${file.type}`);
-          
-          // Set metadata with content type
+
+type UploadableImage = File | string;
+
+export async function uploadImagesToStorageTemporary(
+  imageInputs: UploadableImage[]
+): Promise<string[]> {
+  try {
+    if (!imageInputs || imageInputs.length < 1 || imageInputs.length > 4) {
+      throw new Error("Image count must be between 1 and 4.");
+    }
+
+    const uploadPromises = imageInputs.map(async (input, index) => {
+      const timestamp = new Date().getTime();
+      const fileName = `image-${index + 1}-${timestamp}`;
+      const storageRef = ref(storage, `temporary-images/${fileName}`);
+
+      try {
+        if (typeof input === "string") {
+          // Handle base64 string
+          const matches = input.match(/^data:(image\/[a-zA-Z]+);base64,(.+)$/);
+          const contentType = matches ? matches[1] : 'image/png';
+          const base64Data = matches ? matches[2] : input; // in case it's raw base64 only
+
+          console.log(`Uploading base64 image ${index + 1}`);
           const metadata = {
-            contentType: file.type || 'image/jpeg', // Default to JPEG if type is missing
+            contentType,
             customMetadata: {
-              originalName: file.name,
-              uploadedAt: new Date().toISOString()
+              uploadedAt: new Date().toISOString(),
+              source: "base64"
             }
           };
           
-          // Upload with metadata
-          const snapshot = await uploadBytes(storageRef, blob, metadata);
-          console.log(`Upload successful for image ${index + 1}`);
-          
-          // Get download URL
+
+          const snapshot = await uploadString(storageRef, base64Data, 'base64', metadata);
           return await getDownloadURL(snapshot.ref);
-        } catch (error: any) {
-          console.error(`Error uploading image ${index + 1}:`, error);
-          
-          // Provide more specific error message based on Firebase error code
-          if (error.code === 'storage/unauthorized') {
-            throw new Error(`Permission denied when uploading image ${index + 1}. Check Firebase Storage rules.`);
-          } else if (error.code === 'storage/canceled') {
-            throw new Error(`Upload canceled for image ${index + 1}.`);
-          } else if (error.code === 'storage/retry-limit-exceeded') {
-            throw new Error(`Network error occurred when uploading image ${index + 1}. Check your connection.`);
-          } else if (error.code === 'storage/invalid-checksum') {
-            throw new Error(`File integrity check failed for image ${index + 1}. Try uploading again.`);
-          } else {
-            throw new Error(`Failed to upload image ${index + 1}: ${error?.message || 'Unknown error'}`);
-          }
+
+        } else if (input instanceof File) {
+          // Handle File object
+          const blob = new Blob([await input.arrayBuffer()], { type: input.type });
+          const metadata = {
+            contentType: input.type || 'image/jpeg',
+            customMetadata: {
+              originalName: input.name,
+              uploadedAt: new Date().toISOString()
+            }
+          };
+
+          console.log(`Uploading file: ${input.name}`);
+          const snapshot = await uploadBytes(storageRef, blob, metadata);
+          return await getDownloadURL(snapshot.ref);
+
+        } else {
+          throw new Error(`Unsupported input type at index ${index}.`);
         }
-      });
-  
-      return await Promise.all(uploadPromises);
-    } catch (error: any) {
-      console.error("Error in uploadImagesToStorage:", error);
-      throw new Error(`Failed to upload images: ${error?.message || 'Unknown error'}`);
-    }
+      } catch (error: any) {
+        console.error(`Error uploading image ${index + 1}:`, error);
+        if (error.code === 'storage/unauthorized') {
+          throw new Error(`Permission denied for image ${index + 1}.`);
+        } else if (error.code === 'storage/canceled') {
+          throw new Error(`Upload canceled for image ${index + 1}.`);
+        } else if (error.code === 'storage/retry-limit-exceeded') {
+          throw new Error(`Network error for image ${index + 1}.`);
+        } else if (error.code === 'storage/invalid-checksum') {
+          throw new Error(`Checksum failed for image ${index + 1}.`);
+        } else {
+          throw new Error(`Failed to upload image ${index + 1}: ${error?.message || 'Unknown error'}`);
+        }
+      }
+    });
+
+    return await Promise.all(uploadPromises);
+  } catch (error: any) {
+    console.error("Error in uploadImagesToStorageTemporary:", error);
+    throw new Error(`Failed to upload images: ${error?.message || 'Unknown error'}`);
   }
+}
 
 
 export async function getImageUrlFromId(id: string) {

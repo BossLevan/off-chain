@@ -46,6 +46,7 @@ export async function POST(req: Request) {
         prompt,
         input_images: farcasterImageUrl == null ? imageLinks : farcasterImageUrl,
         openai_api_key: process.env.OPENAI_API_KEY,
+        aspect_ratio: "3:2",
       },
     });
     const imageStreams = output as ReadableStream[]; // assuming this format

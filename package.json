@@ -11,6 +11,7 @@
   "dependencies": {
     "@coinbase/onchainkit": "latest",
     "@delvtech/drift": "^0.3.0",
+    "@farcaster/frame-sdk": "^0.0.53",
     "@flaunch/sdk": "^0.4.0",
     "@headlessui/react": "^2.2.3",
     "@tanstack/react-query": "^5",

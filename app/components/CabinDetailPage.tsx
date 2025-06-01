@@ -26,13 +26,17 @@ import { formatDateFromTimestamp } from "@/lib/utils/formatDate";
 import { convertIpfsToPinataUrl } from "@/lib/utils/ipfs";
 import { useOpenUrl } from "@coinbase/onchainkit/minikit";
 import { notifyBusinessManagerClient, generateAiImage } from "../api/client";
-import { listenToNetCost } from "../api/firebase";
+import {
+  listenToNetCost,
+  uploadImagesToStorageTemporary,
+} from "../api/firebase";
 import AsyncTokenImage from "./AsyncImage";
 import CircularProgress from "./CircularProgress";
 import GalleryImages from "./GalleryImages";
 import NetCostStatusTag from "./NetCostStatusTag";
 import { sdk } from "@farcaster/frame-sdk";
 import Link from "next/link";
+import { extractImageId } from "@/lib/utils/idFromUrl";
 
 export default function CabinDetailPage({ id }: { id: string }) {
   // const params = useParams();
@@ -130,6 +134,37 @@ export default function CabinDetailPage({ id }: { id: string }) {
       console.error("Error uploading image:", error);
     } finally {
       setIsUploading(false);
+    }
+  };
+
+  const sharePageWithGeneratedImage = async () => {
+    try {
+      console.log("image url", imageUrl);
+      const imageLink = await uploadImagesToStorageTemporary([imageUrl]);
+      console.log("generated image storage link", imageLink[0]);
+      const imageId = extractImageId(imageLink[0]);
+      //construct link
+      const shareLink = `https://off-chain.vercel.app/${id}?img=${encodeURIComponent(imageId!)}`;
+      const text = `Funded by $${cabin?.metadata.symbol}`;
+      const res = await sdk.actions.composeCast({
+        text,
+        embeds: [shareLink],
+      });
+      //View cast?
+    } catch {
+      console.log("An error occured ");
+    }
+  };
+
+  const sharePage = async () => {
+    console.log("pressed share");
+    try {
+      const shareLink = `https://off-chain.vercel.app/${id}`;
+      const res = await sdk.actions.composeCast({
+        embeds: [shareLink],
+      });
+    } catch {
+      console.log("An error occured ");
     }
   };
 
@@ -252,7 +287,7 @@ export default function CabinDetailPage({ id }: { id: string }) {
             <ArrowLeft className="w-5 h-5 sm:w-6 sm:h-6" />
             <span>Back</span>
           </Link>
-          <button className="p-2 rounded-full bg-zinc-800">
+          <button onClick={sharePage} className="p-2 rounded-full bg-zinc-800">
             <Share2 className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
         </div>
@@ -601,6 +636,7 @@ export default function CabinDetailPage({ id }: { id: string }) {
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         imageUrl={imageUrl}
+        shareToFarcaster={sharePageWithGeneratedImage}
       />
 
       <SwapModal

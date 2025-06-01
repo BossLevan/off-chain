@@ -6,12 +6,14 @@ type ImageModalProps = {
   isOpen: boolean;
   onClose: () => void;
   imageUrl: string;
+  shareToFarcaster: () => void;
 };
 
 export default function ImageModal({
   isOpen,
   onClose,
   imageUrl,
+  shareToFarcaster,
 }: ImageModalProps) {
   const handleDownload = () => {
     const link = document.createElement("a");
@@ -78,11 +80,15 @@ export default function ImageModal({
               </button>
 
               <button
-                onClick={handleShareToTwitter}
-                className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium bg-blue-600 hover:bg-blue-700 text-white rounded-lg flex-1 transition-colors"
+                onClick={shareToFarcaster}
+                className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium bg-[#8247E5] hover:bg-[#6B34C9] text-white rounded-lg flex-1 transition-colors"
               >
-                <Share size={16} />
-                Share
+                <img
+                  src="https://uploads-ssl.webflow.com/6542f9a123db4e2224260db0/6542fbc8cf1b0b3e4ab5a8cb_farcaster-icon-white.svg"
+                  alt="Farcaster"
+                  className="w-4 h-4"
+                />
+                Share to Farcaster
               </button>
             </div>
           </div>

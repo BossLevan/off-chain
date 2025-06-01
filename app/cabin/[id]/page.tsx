@@ -19,9 +19,13 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   try {
     const id = params.id;
+    let img: string = "";
+
     //the image id so i can search it in storage.
-    const imgId = searchParams?.img;
-    const img = imgId ? await getImageUrlFromId(imgId) : null;
+    const imgId = decodeURIComponent(searchParams?.img as string);
+    if (imgId) {
+      img = await getImageUrlFromId(imgId);
+    }
 
     const client = new GraphQLClient(process.env.FLAUNCH_URL_MAINNET!);
     const response = await client.request<{
