@@ -166,6 +166,18 @@ export async function uploadImagesToStorage(
       throw new Error(`Failed to upload images: ${error?.message || 'Unknown error'}`);
     }
   }
+
+
+export async function getImageUrlFromId(id: string) {
+  try {
+    const storageRef = ref(storage, `temporary-images/${id}`);
+    return await getDownloadURL(storageRef);
+  } catch (e: any) {
+    console.error(e)
+    throw new Error(`Failed to get image: ${e?.message || 'Unknown error'}`);
+  }
+}
+
   
   /**
    * Save metadata to Firestore

@@ -26,6 +26,7 @@ export async function POST(req: Request) {
   try {
     const formData = await req.formData();
     const prompt = formData.get("prompt") as string;
+    const farcasterImageUrl = formData.get("farcasterImage");
     const files = formData.getAll("images");
 
     console.log(prompt, files)
@@ -43,7 +44,7 @@ export async function POST(req: Request) {
     const output = await replicate.run("openai/gpt-image-1", {
       input: {
         prompt,
-        input_images: imageLinks,
+        input_images: farcasterImageUrl == null ? imageLinks : farcasterImageUrl,
         openai_api_key: process.env.OPENAI_API_KEY,
       },
     });

@@ -78,7 +78,11 @@ export async function getTokenFirestoreDetails(contract: string): Promise<{
     return res.json();
   }
   
-  export async function generateAiImage(form: FormData): Promise<string[]> {
+  export async function generateAiImage(form: FormData, farcasterImage?: string): Promise<string[]> {
+    if (farcasterImage) {
+        form.append("farcasterImage", farcasterImage);
+      }
+    
     const res = await fetch("/api/image", {
       method: "POST",
       body: form,

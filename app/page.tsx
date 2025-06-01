@@ -84,11 +84,13 @@ import { convertIpfsToPinataUrl } from "@/lib/utils/ipfs";
 import { TokenTile } from "./components/TokenTile";
 import { useSearchParams } from "next/navigation";
 import React from "react";
+import AboutModal from "./components/AboutModal";
 
 export default function App() {
   const { setFrameReady, isFrameReady, context } = useMiniKit();
+  const [isAboutOpen, setIsAboutOpen] = useState(false);
   const [frameAdded, setFrameAdded] = useState(false);
-  const [activeFilter, setActiveFilter] = useState("new");
+  const [activeFilter, setActiveFilter] = useState("Trending");
 
   const addFrame = useAddFrame();
   const isMobile = useIsMobile();
@@ -173,12 +175,19 @@ export default function App() {
             </span>
           </div>
           <div className="flex space-x-3 md:space-x-4">
-            <Link
-              href="/about"
-              className="text-blue-500 font-bold bg-zinc-900 px-3 py-2 md:px-4 md:py-2.5 rounded-full text-sm md:text-base"
-            >
-              About
-            </Link>
+            <>
+              <button
+                onClick={() => setIsAboutOpen(true)}
+                className="text-blue-500 font-bold bg-zinc-900 px-3 py-2 md:px-4 md:py-2.5 rounded-full text-sm md:text-base"
+              >
+                About
+              </button>
+
+              <AboutModal
+                isOpen={isAboutOpen}
+                onClose={() => setIsAboutOpen(false)}
+              />
+            </>
             {/* <Link
               href="/login"
               className="bg-blue-500 font-bold px-3 py-2 md:px-4 md:py-2.5 rounded-full text-sm md:text-base"
@@ -197,7 +206,7 @@ export default function App() {
           </div>
 
           <div className="flex space-x-2 mb-6">
-            {["new", "upcoming", "trending"].map((filter) => {
+            {["Trending"].map((filter) => {
               const isActive = activeFilter === filter;
               return (
                 <div
