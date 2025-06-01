@@ -34,7 +34,7 @@ export async function generateMetadata({
     },
     other: {
       "fc:frame": JSON.stringify({
-        version: "next",
+        version: "vNext",
         image: imageUrl,
         button: {
           title: "View Cabin",
