@@ -7,6 +7,7 @@ import { convertIpfsToPinataUrl } from "@/lib/utils/ipfs";
 import { SingleTokenDetailed } from "@/lib/utils/types";
 import { SINGLE_COIN_QUERY } from "@/lib/utils/queries";
 import CabinDetailPage from "@/app/components/CabinDetailPage";
+import { getImageUrlFromId } from "@/app/api/firebase";
 
 // 1. Generate Metadata
 export async function generateMetadata({
@@ -18,7 +19,9 @@ export async function generateMetadata({
 }): Promise<Metadata> {
   try {
     const id = params.id;
-    const img = searchParams?.img;
+    //the image id so i can search it in storage.
+    const imgId = searchParams?.img;
+    const img = imgId ? await getImageUrlFromId(imgId) : null;
 
     const client = new GraphQLClient(process.env.FLAUNCH_URL_MAINNET!);
     const response = await client.request<{

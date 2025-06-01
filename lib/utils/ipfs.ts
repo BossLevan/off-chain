@@ -32,7 +32,7 @@ export async function convertIpfsToPinataUrl(ipfsUrl: string) {
     const ipfsHash = ipfsUrl.replace('ipfs://', '');
     console.log(`${ipfsGateway}${ipfsHash}`)
     try {
-      console.log('fetching')
+    //   console.log('fetching')
       const response = await fetch(`${ipfsGateway}${ipfsHash}`);
   
       if (!response.ok) {
@@ -40,13 +40,13 @@ export async function convertIpfsToPinataUrl(ipfsUrl: string) {
       }
   
       const data = await response.json();
-      console.log('data', data.image)
+    //   console.log('data', data.image)
   
       if (!data.image) {
         throw new Error("Image field not found in the JSON");
       }
       const imageHash = data.image.replace('ipfs://', '');
-      console.log('imaghash', imageHash)
+    //   console.log('imaghash', imageHash)
   
       return`${ipfsGateway}${imageHash}`;
     } catch (error) {
