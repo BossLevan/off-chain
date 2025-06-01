@@ -144,7 +144,7 @@ export default function CabinDetailPage({ id }: { id: string }) {
       console.log("generated image storage link", imageLink[0]);
       const imageId = extractImageId(imageLink[0]);
       //construct link
-      const shareLink = `https://off-chain.vercel.app/${id}?img=${encodeURIComponent(imageId!)}`;
+      const shareLink = `https://off-chain.vercel.app/cabin/${id}?img=${encodeURIComponent(imageId!)}`;
       const text = `Funded by $${cabin?.metadata.symbol}`;
       const res = await sdk.actions.composeCast({
         text,
@@ -159,7 +159,7 @@ export default function CabinDetailPage({ id }: { id: string }) {
   const sharePage = async () => {
     console.log("pressed share");
     try {
-      const shareLink = `https://off-chain.vercel.app/${id}`;
+      const shareLink = `https://off-chain.vercel.app/cabin/${id}`;
       const res = await sdk.actions.composeCast({
         embeds: [shareLink],
       });
