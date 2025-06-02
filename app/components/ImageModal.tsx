@@ -1,6 +1,7 @@
 import { Dialog } from "@headlessui/react";
 import { X, Download, Share } from "lucide-react";
-import React from "react";
+import React, { useEffect, useRef } from "react";
+import CanvasAnnotation, { CanvasAnnotationHandle } from "./CanvasAnnotoation";
 
 type ImageModalProps = {
   isOpen: boolean;
@@ -8,6 +9,7 @@ type ImageModalProps = {
   imageUrl: string;
   shareToFarcaster: () => void;
   loading: boolean;
+  onImageReady: (image: string) => void; // <-- NEW CALLBACK
 };
 
 export default function ImageModal({
@@ -16,13 +18,24 @@ export default function ImageModal({
   imageUrl,
   shareToFarcaster,
   loading,
+  onImageReady,
 }: ImageModalProps) {
+  const canvasRef = useRef<CanvasAnnotationHandle>(null);
   const handleDownload = () => {
     const link = document.createElement("a");
     link.href = imageUrl;
     link.download = "ai-image.png";
     link.click();
   };
+
+  useEffect(() => {
+    if (isOpen && canvasRef.current) {
+      const imageData = canvasRef.current.getImage();
+      if (imageData) {
+        onImageReady(imageData); // Send it to parent!
+      }
+    }
+  }, [isOpen, onImageReady]);
 
   const handleShareToTwitter = () => {
     const tweetText = encodeURIComponent(
@@ -58,13 +71,19 @@ export default function ImageModal({
 
           <div className="flex flex-col items-center gap-4">
             {/* Image preview */}
-            <div className="w-full rounded-lg overflow-hidden shadow-lg shadow-blue-900/20">
+            {/* <div className="w-full rounded-lg overflow-hidden shadow-lg shadow-blue-900/20">
               <img
                 src={imageUrl}
                 alt="Generated AI"
                 className="w-full object-cover"
               />
-            </div>
+            </div> */}
+            <CanvasAnnotation
+              ref={canvasRef}
+              base64={imageUrl}
+              vol="$24K"
+              mcap="$1.3M"
+            />
 
             {/* Attribution */}
             {/* <p className="text-sm text-blue-400 font-medium">

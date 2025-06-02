@@ -51,6 +51,7 @@ export default function CabinDetailPage({ id }: { id: string }) {
   const [userImportedFarcasterImage, setUserImportedFarcasterImage] =
     useState(false);
   const [imageUrl, setImageUrl] = useState("");
+  const [annotatedImage, setAnnotatedImage] = useState<string | null>(null);
   const [loadingShareToFarcaster, setLoadingShareToFarcaster] = useState(false);
   const [userPFP, setUserPFP] = useState<string | null | undefined>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -143,26 +144,25 @@ export default function CabinDetailPage({ id }: { id: string }) {
   };
 
   const sharePageWithGeneratedImage = async () => {
+    if (!annotatedImage) return;
     try {
       setLoadingShareToFarcaster(true);
-      const imageLink = await uploadImagesToStorageTemporary([imageUrl]);
-      console.log("generated image storage link", imageLink[0]);
+      //changed from imageUrl
+      const imageLink = await uploadImagesToStorageTemporary([annotatedImage]);
       const imageId = extractImageId(imageLink[0]);
-      //construct link
       const shareLink = `https://off-chain.vercel.app/cabin/${id}?img=${encodeURIComponent(imageId!)}`;
       const text = `Funded by $${cabin?.metadata.symbol}`;
-      const res = await sdk.actions.composeCast({
+      await sdk.actions.composeCast({
         text,
         embeds: [shareLink],
       });
       //View cast?
       setLoadingShareToFarcaster(false);
-    } catch {
+    } catch (e) {
       setLoadingShareToFarcaster(false);
-      console.log("An error occured ");
+      console.error("An error occurred:", e);
     }
   };
-
   const sharePage = async () => {
     console.log("pressed share");
     try {
@@ -548,13 +548,13 @@ export default function CabinDetailPage({ id }: { id: string }) {
                   label: "Ticker",
                   value: cabin.metadata.symbol,
                 },
-                {
-                  icon: (
-                    <User className="w-4 h-4 sm:w-5 sm:h-5 text-orange-500" />
-                  ),
-                  label: "Creator",
-                  value: "kosi.base.eth",
-                },
+                // {
+                //   icon: (
+                //     <User className="w-4 h-4 sm:w-5 sm:h-5 text-orange-500" />
+                //   ),
+                //   label: "Creator",
+                //   value: "kosi.base.eth",
+                // },
               ].map((item, i) => (
                 <div key={i} className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
@@ -599,7 +599,7 @@ export default function CabinDetailPage({ id }: { id: string }) {
             } transition-colors`}
             disabled={!uploadedImage}
           >
-            Generate
+            Generate your {cabin.metadata.symbol}
           </button>
         </div>
         <div className="safe-bottom" />
@@ -651,6 +651,7 @@ export default function CabinDetailPage({ id }: { id: string }) {
         imageUrl={imageUrl}
         shareToFarcaster={sharePageWithGeneratedImage}
         loading={loadingShareToFarcaster}
+        onImageReady={setAnnotatedImage} // <-- this sets the state
       />
 
       <SwapModal

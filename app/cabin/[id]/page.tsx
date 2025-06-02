@@ -46,7 +46,7 @@ export async function generateMetadata({
           version: "next",
           imageUrl: imageUrl,
           button: {
-            title: `Generate your ${response?.collectionToken?.metadata.symbol}`,
+            title: `👉🏾 Generate your ${response?.collectionToken?.metadata.symbol}`,
             action: {
               type: "launch_frame",
               name: "Cabin",
