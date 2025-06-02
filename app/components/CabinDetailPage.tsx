@@ -48,6 +48,8 @@ export default function CabinDetailPage({ id }: { id: string }) {
   const [imageGenLoading, setImageGenLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [imageGenError, setImageGenError] = useState(false);
+  const [userImportedFarcasterImage, setUserImportedFarcasterImage] =
+    useState(false);
   const [imageUrl, setImageUrl] = useState("");
   const [userPFP, setUserPFP] = useState<string | null | undefined>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -128,9 +130,11 @@ export default function CabinDetailPage({ id }: { id: string }) {
       setIsUploading(true);
       await new Promise((resolve) => setTimeout(resolve, 1000));
       if (userPFP != null) {
+        setUserImportedFarcasterImage(true);
         setUploadedImage(userPFP);
       }
     } catch (error) {
+      setUserImportedFarcasterImage(false);
       console.error("Error uploading image:", error);
     } finally {
       setIsUploading(false);
@@ -189,6 +193,7 @@ export default function CabinDetailPage({ id }: { id: string }) {
     if (uploadedImage) URL.revokeObjectURL(uploadedImage);
     submitDataRef.current.delete("images");
     setUploadedImage(null);
+    setUserImportedFarcasterImage(false);
   };
 
   useEffect(() => {
@@ -214,12 +219,17 @@ export default function CabinDetailPage({ id }: { id: string }) {
       if (prompt) {
         setImageGenLoading(true);
         submitDataRef.current.append("prompt", prompt);
-        const response = await generateAiImage(submitDataRef.current, userPFP!);
+
+        //true: send the farcaster image else send nothing
+        const response = userImportedFarcasterImage
+          ? await generateAiImage(submitDataRef.current, userPFP!)
+          : await generateAiImage(submitDataRef.current);
         setImageUrl(response[0]);
 
         setIsModalOpen(true);
         //remove the uploaded image
         setUploadedImage(null);
+        setUserImportedFarcasterImage(false);
 
         //notify business manager to update costing
         const res = await notifyBusinessManagerClient(id, true);
