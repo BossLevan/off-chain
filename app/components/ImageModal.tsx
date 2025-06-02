@@ -69,11 +69,10 @@ export default function ImageModal({
               Funded by $POLARIOD
             </p> */}
 
-            {/* Actions */}
-            <div className="flex gap-3 mt-4 w-full">
+            <div className="flex flex-col sm:flex-row gap-3 mt-4 w-full">
               <button
                 onClick={handleDownload}
-                className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg flex-1 bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 transition-colors"
+                className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 transition-colors sm:basis-1/4 w-full"
               >
                 <Download size={16} />
                 Download
@@ -81,12 +80,12 @@ export default function ImageModal({
 
               <button
                 onClick={shareToFarcaster}
-                className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium bg-[#8247E5] hover:bg-[#6B34C9] text-white rounded-lg flex-1 transition-colors"
+                className="flex items-center justify-center gap-2 px-4 py-2 text-sm font-medium bg-[#8247E5] hover:bg-[#6B34C9] text-white rounded-lg transition-colors sm:basis-3/4 w-full"
               >
                 <img
-                  src="https://uploads-ssl.webflow.com/6542f9a123db4e2224260db0/6542fbc8cf1b0b3e4ab5a8cb_farcaster-icon-white.svg"
+                  src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAAZlBMVEV8ZcH///93Xr96YsB4YMCUg8ujldK3rNu0qNpyWL1/acN1XL7u7PZ7Y8BwVrzz8fnAt+CNesjb1e2DbcT6+f3Vz+ppTLqRf8rHv+O8st7MxeWjlNKaic7n4/P19PpsULuvotfj3/HBCoTvAAAD70lEQVR4nO2d63qiMBRFOwlVIRKFar3S2vd/yZHpzA9rPbmwMbGz1wts1ockJ1efngghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIyohib1IJPk7FJ7FdXv8amqmlIQxrSkIY0pCENaUjD/8ewvsE9DG8AFlTme/TohvpGsoIq6ufRRcJ51kDDuk6t8w3Y36ldpPa5YmGRgk9lm1roiraEGpplaqErlgZqWExSC10xwc7C1S+pha54AXeINrXQFdiG5tzUdKmNvtBhG5pzU7NPrfSFPbahOTc1s9RKX5ihp/uzq9ugNVtPdnUbemyRXd0Grtl6MqvbwDVbT2Z1G7hm68msbgPXbD2Z1W3omq2nTC11Af4zPH+I7bznLbHa25+naPGfYa9YnnlPXdvM3vvHGEXwEzVNbDhV48nR0MWqW29309lst113qx9nuNhPKlsao1ShlDGlrSb7uDIwS8PVsrGmuOzA6sLYZhvxKjM07A5WfT/S0coegqcOsjOcH61UXxX2OH9sw5N1DVS1PT2wYat9HkfVIQOzrAxP1q88rkNeY0aGq8a/tDKNd6uaj+GiChnBFZVv75iN4fxGD3ELrTzb1FwMFyZ0hFobv7eYieGqCp/N1JXXt5iJYRMzi1I0j2N4ihugGp9OIwvDNna21np0/VkY6th5sNpjd04Ohqf4Z1Du32kGhvMhKwrW2StmYHgcsuylj/kbdsMWhaxrSJzecOCCQnHI3XA1dF3POiqb5IbLoQ+gHKt4yQ2bocvr2lG7pTYELD47ltNTGwJ2uTh27qQ2BCzNOhabUxsCNtY7NscnNhzcV/TI/UViQ8h2OnmTYGLDNWJt1qwzNtxCDLcZG+4Q8WqXseEMYihGpDZE7FSSt7LScDA0BETQEBAhQUNABA0BERI0BETQEBAhQUNABA0BERI0BETQEBAhQUNABA0BERI0BETQEBAhQUNABA0BERI0BETQEBAhQUNABA0BERI0BETQEBAh8eMNtRXj3UdGfSLEDfszQIRAuVmKG5Y+lpty2M62+hzxIUV0y2aMWz/+pYu7lT5ZD1K8Q4SEz6GdAWeCAiJGeovObfR/OcR/KHr8CAnjeeR6wN0xd4iQKD3Psc7jf0N3iEgcT0MaDqJWr573kMxfIy8TP0d4GnaxEQJFMW097z1YradR/7QVEtHGRQgo57nAS47h9fEdIgRch5GuCT7/dIcIifBbhIPPJYRHfACbm5jrWQNPz8T8jQTwktaYK3Y3gTd/bMIjgBft0pCGD2AY2FXdyXDQyf9L6uo5mOC2dPQIOV8HE3zH0PgRhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIGZ/fAvZbw3/gJrkAAAAASUVORK5CYII="
                   alt="Farcaster"
-                  className="w-4 h-4"
+                  className="w-4 h-4 shrink-0"
                 />
                 Share to Farcaster
               </button>
