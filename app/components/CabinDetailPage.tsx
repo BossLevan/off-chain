@@ -51,6 +51,7 @@ export default function CabinDetailPage({ id }: { id: string }) {
   const [userImportedFarcasterImage, setUserImportedFarcasterImage] =
     useState(false);
   const [imageUrl, setImageUrl] = useState("");
+  const [loadingShareToFarcaster, setLoadingShareToFarcaster] = useState(false);
   const [userPFP, setUserPFP] = useState<string | null | undefined>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -143,7 +144,7 @@ export default function CabinDetailPage({ id }: { id: string }) {
 
   const sharePageWithGeneratedImage = async () => {
     try {
-      console.log("image url", imageUrl);
+      setLoadingShareToFarcaster(true);
       const imageLink = await uploadImagesToStorageTemporary([imageUrl]);
       console.log("generated image storage link", imageLink[0]);
       const imageId = extractImageId(imageLink[0]);
@@ -155,7 +156,9 @@ export default function CabinDetailPage({ id }: { id: string }) {
         embeds: [shareLink],
       });
       //View cast?
+      setLoadingShareToFarcaster(false);
     } catch {
+      setLoadingShareToFarcaster(false);
       console.log("An error occured ");
     }
   };
@@ -647,6 +650,7 @@ export default function CabinDetailPage({ id }: { id: string }) {
         onClose={() => setIsModalOpen(false)}
         imageUrl={imageUrl}
         shareToFarcaster={sharePageWithGeneratedImage}
+        loading={loadingShareToFarcaster}
       />
 
       <SwapModal

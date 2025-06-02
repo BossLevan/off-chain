@@ -56,7 +56,7 @@ export function TokenTile({ token }: TokenTileProps) {
   return (
     <div className="flex items-center justify-between bg-[#141619] rounded-[24px] p-3 sm:p-5">
       <div className="flex space-x-3 sm:space-x-4 min-w-0 flex-1">
-        <div className="relative w-[60px] h-[60px] sm:w-[80px] sm:h-[80px] flex-shrink-0">
+        <div className="relative w-[64px] h-[64px] sm:w-[80px] sm:h-[80px] flex-shrink-0">
           {loading ? (
             <div className="w-full h-full rounded-2xl bg-zinc-800 animate-pulse" />
           ) : (
@@ -74,13 +74,13 @@ export function TokenTile({ token }: TokenTileProps) {
           </div> */}
         </div>
         <div className="flex flex-col justify-between py-[2px] min-w-0 flex-1">
-          <div className="text-[10px] sm:text-[12px] font-header font-extralight text-blue-400">
+          <div className="text-[12px] sm:text-[14px] font-header font-extralight text-blue-400">
             {marketCapUsd ?? "..."} MARKET CAP
           </div>
-          <div className="font-bold text-[16px] sm:text-[20px] mt-0.5 truncate">
+          <div className="font-bold text-[18px] sm:text-[22px] mt-0.5 truncate">
             {token.metadata.name}
           </div>
-          <div className="text-[13px] sm:text-[16px] font-medium text-[#AAAAAA] truncate">
+          <div className="text-[15px] sm:text-[18px] font-medium text-[#AAAAAA] truncate">
             {token.metadata.description}
           </div>
         </div>
