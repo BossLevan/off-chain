@@ -23,7 +23,9 @@ export async function generateMetadata({
 
     //the image id so i can search it in storage.
     const imgId = decodeURIComponent(searchParams?.img as string);
+    console.log("before", imgId);
     if (imgId) {
+      console.log("after", imgId);
       img = await getImageUrlFromId(imgId);
     }
 
