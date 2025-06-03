@@ -24,7 +24,7 @@ import { useTokenDetails } from "@/lib/hooks/useGetToken";
 import { convertStatToUsd } from "@/lib/utils/convertStatsToUsd";
 import { formatDateFromTimestamp } from "@/lib/utils/formatDate";
 import { convertIpfsToPinataUrl } from "@/lib/utils/ipfs";
-import { useOpenUrl } from "@coinbase/onchainkit/minikit";
+import { useMiniKit, useOpenUrl } from "@coinbase/onchainkit/minikit";
 import { notifyBusinessManagerClient, generateAiImage } from "../api/client";
 import {
   listenToNetCost,
@@ -68,6 +68,7 @@ export default function CabinDetailPage({ id }: { id: string }) {
   const { prompt, totalImagesGenerated } = useTokenFirestoreDetails(id);
   const [ipfsImageUrl, setipfsImageUrl] = useState<string | null>(null);
   const [ipfsloading, setIpfsLoading] = useState(true);
+  const { setFrameReady, isFrameReady, context } = useMiniKit();
 
   useEffect(() => {
     const fetchImage = async () => {
@@ -83,6 +84,13 @@ export default function CabinDetailPage({ id }: { id: string }) {
 
     fetchImage();
   }, [cabin?.baseURI]);
+
+  // The setFrameReady() function is called when your mini-app is ready to be shown
+  useEffect(() => {
+    if (!isFrameReady) {
+      setFrameReady();
+    }
+  }, [setFrameReady, isFrameReady]);
 
   function useIsMobile(breakpoint = 640) {
     const [isMobile, setIsMobile] = useState(false);
@@ -378,7 +386,7 @@ export default function CabinDetailPage({ id }: { id: string }) {
                 ),
               },
               {
-                label: "Generated",
+                label: "Remixes",
                 value: totalImagesGenerated.toString(),
                 icon: (
                   <Flame className="w-4 h-4 sm:w-5 sm:h-5 stroke-red-500 fill-red-500" />
@@ -472,7 +480,7 @@ export default function CabinDetailPage({ id }: { id: string }) {
                   <div className="text-center">
                     {state == "Cold" ? (
                       <p className="text-base sm:text-lg font-medium text-white mb-2">
-                        Hold to unlock
+                        Hold to Remix
                       </p>
                     ) : (
                       <p className="text-base sm:text-lg font-medium text-white mb-2">
@@ -588,7 +596,7 @@ export default function CabinDetailPage({ id }: { id: string }) {
             >
               {uploadedImage ? "✓" : "○"}
             </span>
-            <span>Upload Required Image to app to generate</span>
+            <span>Upload Required Image to app to remix</span>
           </div>
           <button
             onClick={generateImage}
@@ -599,7 +607,7 @@ export default function CabinDetailPage({ id }: { id: string }) {
             } transition-colors`}
             disabled={!uploadedImage}
           >
-            Generate your {cabin.metadata.symbol}
+            Remix {cabin.metadata.symbol}
           </button>
         </div>
         <div className="safe-bottom" />
@@ -613,7 +621,7 @@ export default function CabinDetailPage({ id }: { id: string }) {
 
             {/* Status text */}
             <span className="text-white text-sm font-medium">
-              Generating Image...
+              Remixing Image...
             </span>
           </div>
         </div>

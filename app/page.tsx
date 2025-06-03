@@ -182,6 +182,7 @@ export default function App() {
               >
                 About
               </button>
+              {saveFrameButton}
 
               <AboutModal
                 isOpen={isAboutOpen}

@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Settings, Home, PlusCircle, Flower } from "lucide-react";
+import { Settings, Home, PlusCircle, Flower, Wallet2Icon } from "lucide-react";
 
 export default function BottomNav() {
   return (
@@ -11,14 +11,19 @@ export default function BottomNav() {
           <Home className="w-6 h-6" />
           <span className="text-xs mt-1">Home</span>
         </Link>
-        <Link href="/create" className="flex flex-col items-center text-white">
+
+        <Link href="/" className="flex flex-col items-center text-white">
           <PlusCircle className="w-6 h-6" />
           <span className="text-xs mt-1">Create</span>
         </Link>
-        <button className="flex flex-col items-center text-white">
-          <Settings className="w-6 h-6" />
-          <span className="text-xs mt-1">Settings</span>
-        </button>
+        {/* <button className="flex flex-col items-center text-white">
+          <Wallet2Icon className="w-6 h-6" />
+          <span className="text-xs mt-1">Holdings</span>
+        </button> */}
+        <Link href="/" className="flex flex-col items-center text-white">
+          <Wallet2Icon className="w-6 h-6" />
+          <span className="text-xs mt-1">Holdings</span>
+        </Link>
       </div>
     </nav>
   );
