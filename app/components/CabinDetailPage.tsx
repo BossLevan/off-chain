@@ -652,6 +652,8 @@ export default function CabinDetailPage({ id }: { id: string }) {
         shareToFarcaster={sharePageWithGeneratedImage}
         loading={loadingShareToFarcaster}
         onImageReady={setAnnotatedImage} // <-- this sets the state
+        mcap={marketCapUsd}
+        volume={volumeUsd}
       />
 
       <SwapModal

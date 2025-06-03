@@ -9,6 +9,8 @@ type ImageModalProps = {
   imageUrl: string;
   shareToFarcaster: () => void;
   loading: boolean;
+  volume: string;
+  mcap: string;
   onImageReady: (image: string) => void;
 };
 
@@ -19,6 +21,8 @@ export default function ImageModal({
   shareToFarcaster,
   loading,
   onImageReady,
+  volume,
+  mcap,
 }: ImageModalProps) {
   const canvasRef = useRef<CanvasAnnotationHandle>(null);
   const [hasSentImage, setHasSentImage] = useState(false);
