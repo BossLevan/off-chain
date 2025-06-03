@@ -50,11 +50,12 @@ const CanvasAnnotation = forwardRef<
       canvas.height = img.height;
       ctx.drawImage(img, 0, 0);
 
-      const fontSize = 64;
-      const padding = 48;
-      const radius = 40;
-      const labelSpacing = 80;
-      const textY = y + fontSize + 16;
+      // scaled-down values (~75%)
+      const fontSize = 48; // 64 * 3/4
+      const padding = 36; // 48 * 3/4
+      const radius = 30; // 40 * 3/4
+      const labelSpacing = 60; // 80 * 3/4
+      const textY = y + fontSize + 12; // adjust Y padding proportionally
 
       ctx.font = `bold ${fontSize}px "Courier New", monospace`;
       const volWidth = ctx.measureText(vol).width;
