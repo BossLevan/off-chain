@@ -1,6 +1,6 @@
 import { Dialog } from "@headlessui/react";
-import { X, Download, Share } from "lucide-react";
-import React, { useEffect, useRef } from "react";
+import { X, Download } from "lucide-react";
+import React, { useEffect, useRef, useState } from "react";
 import CanvasAnnotation, { CanvasAnnotationHandle } from "./CanvasAnnotoation";
 
 type ImageModalProps = {
@@ -9,7 +9,7 @@ type ImageModalProps = {
   imageUrl: string;
   shareToFarcaster: () => void;
   loading: boolean;
-  onImageReady: (image: string) => void; // <-- NEW CALLBACK
+  onImageReady: (image: string) => void;
 };
 
 export default function ImageModal({
@@ -21,6 +21,27 @@ export default function ImageModal({
   onImageReady,
 }: ImageModalProps) {
   const canvasRef = useRef<CanvasAnnotationHandle>(null);
+  const [hasSentImage, setHasSentImage] = useState(false);
+
+  // Send image once when modal opens
+  useEffect(() => {
+    if (isOpen && !hasSentImage) {
+      const timer = setTimeout(() => {
+        if (canvasRef.current) {
+          const img = canvasRef.current.getImage();
+          if (img) {
+            onImageReady(img);
+            setHasSentImage(true);
+          }
+        }
+      }, 500); // Wait for canvas to be ready
+
+      return () => clearTimeout(timer);
+    } else if (!isOpen) {
+      setHasSentImage(false); // Reset for next open
+    }
+  }, [isOpen, hasSentImage, onImageReady]);
+
   const handleDownload = () => {
     const link = document.createElement("a");
     link.href = imageUrl;
@@ -28,28 +49,9 @@ export default function ImageModal({
     link.click();
   };
 
-  useEffect(() => {
-    if (isOpen && canvasRef.current) {
-      const imageData = canvasRef.current.getImage();
-      if (imageData) {
-        onImageReady(imageData); // Send it to parent!
-      }
-    }
-  }, [isOpen, onImageReady]);
-
-  const handleShareToTwitter = () => {
-    const tweetText = encodeURIComponent(
-      "Check out this image I just generated with AI!",
-    );
-    const tweetUrl = `https://twitter.com/intent/tweet?text=${tweetText}&url=${encodeURIComponent(
-      imageUrl,
-    )}`;
-    window.open(tweetUrl, "_blank");
-  };
-
   return (
     <Dialog open={isOpen} onClose={onClose} className="relative z-50">
-      {/* Background overlay */}
+      {/* Overlay */}
       {isOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm transition-opacity" />
       )}
@@ -58,8 +60,6 @@ export default function ImageModal({
         <Dialog.Panel className="relative z-50 rounded-2xl p-6 w-full max-w-md bg-gray-900 text-gray-100 border border-gray-700 shadow-xl">
           <div className="flex justify-between items-center mb-4">
             <h3 className="font-medium text-lg">Image Preview</h3>
-
-            {/* Close button */}
             <button
               onClick={onClose}
               className="p-2 rounded-full bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-white"
@@ -70,25 +70,12 @@ export default function ImageModal({
           </div>
 
           <div className="flex flex-col items-center gap-4">
-            {/* Image preview */}
-            {/* <div className="w-full rounded-lg overflow-hidden shadow-lg shadow-blue-900/20">
-              <img
-                src={imageUrl}
-                alt="Generated AI"
-                className="w-full object-cover"
-              />
-            </div> */}
             <CanvasAnnotation
               ref={canvasRef}
               base64={imageUrl}
               vol="$24K"
               mcap="$1.3M"
             />
-
-            {/* Attribution */}
-            {/* <p className="text-sm text-blue-400 font-medium">
-              Funded by $POLARIOD
-            </p> */}
 
             <div className="flex flex-col sm:flex-row gap-3 mt-4 w-full">
               <button
@@ -141,7 +128,7 @@ export default function ImageModal({
                 )}
               </button>
 
-              <p className="flex items-center justify-center">
+              <p className="flex items-center justify-center text-xs text-center mt-2">
                 ⭐️ Earn coins when you share ⭐️
               </p>
             </div>

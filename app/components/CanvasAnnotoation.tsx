@@ -25,13 +25,11 @@ const CanvasAnnotation = forwardRef<
     download: () => {
       const canvas = canvasRef.current;
       if (!canvas) return;
-
       const link = document.createElement("a");
       link.download = "annotated-image.png";
       link.href = canvas.toDataURL("image/png");
       link.click();
     },
-
     getImage: () => {
       const canvas = canvasRef.current;
       if (!canvas) return null;
@@ -52,11 +50,11 @@ const CanvasAnnotation = forwardRef<
       canvas.height = img.height;
       ctx.drawImage(img, 0, 0);
 
-      const padding = 20;
-      const radius = 14;
-      const fontSize = 24;
-      const labelSpacing = 30;
-      const textY = y + fontSize + 8;
+      const fontSize = 64;
+      const padding = 48;
+      const radius = 40;
+      const labelSpacing = 80;
+      const textY = y + fontSize + 16;
 
       ctx.font = `bold ${fontSize}px "Courier New", monospace`;
       const volWidth = ctx.measureText(vol).width;
@@ -67,15 +65,14 @@ const CanvasAnnotation = forwardRef<
       const boxWidth =
         padding * 2 +
         volWidth +
-        10 +
+        20 +
         volLabelWidth +
         labelSpacing +
         mcapWidth +
-        10 +
+        20 +
         mcapLabelWidth;
       const boxHeight = fontSize + padding;
 
-      // Rounded rectangle
       ctx.beginPath();
       ctx.moveTo(x + radius, y);
       ctx.lineTo(x + boxWidth - radius, y);
@@ -100,7 +97,7 @@ const CanvasAnnotation = forwardRef<
 
       ctx.fillStyle = "#00FF00";
       ctx.fillText(vol, cursorX, textY);
-      cursorX += volWidth + 10;
+      cursorX += volWidth + 20;
 
       ctx.fillStyle = "#FFFFFF";
       ctx.fillText("VOL", cursorX, textY);
@@ -108,7 +105,7 @@ const CanvasAnnotation = forwardRef<
 
       ctx.fillStyle = "#00FF00";
       ctx.fillText(mcap, cursorX, textY);
-      cursorX += mcapWidth + 10;
+      cursorX += mcapWidth + 20;
 
       ctx.fillStyle = "#FFFFFF";
       ctx.fillText("MCAP", cursorX, textY);
