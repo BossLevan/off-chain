@@ -77,8 +77,8 @@ export default function ImageModal({
             <CanvasAnnotation
               ref={canvasRef}
               base64={imageUrl}
-              vol="$24K"
-              mcap="$1.3M"
+              vol={volume}
+              mcap={mcap}
             />
 
             <div className="flex flex-col sm:flex-row gap-3 mt-4 w-full">
