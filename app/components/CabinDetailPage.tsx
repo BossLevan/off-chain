@@ -233,6 +233,7 @@ export default function CabinDetailPage({ id }: { id: string }) {
         setImageGenLoading(true);
         submitDataRef.current.append("prompt", prompt);
         console.log(userPFP);
+        console.log(userImportedFarcasterImage);
 
         //true: send the farcaster image else send nothing
         const response = userImportedFarcasterImage
