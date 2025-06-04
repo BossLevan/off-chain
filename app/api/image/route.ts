@@ -29,15 +29,18 @@ export async function POST(req: Request) {
     const farcasterImageUrl = formData.get("farcasterImage");
     const files = formData.getAll("images");
 
-    console.log(prompt, files)
+    console.log(prompt, files, farcasterImageUrl)
 
     const imageFiles: File[] = files.filter((f): f is File => f instanceof File);
+    let imageLinks;
 
-    if (!prompt || imageFiles.length === 0) {
+    if (!prompt ||( imageFiles.length === 0 && farcasterImageUrl == null)) {
       return NextResponse.json<ErrorResponse>({ error: "Missing prompt or images" }, { status: 400 });
     }
 
-    const imageLinks = uploadImagesToStorageTemporary(imageFiles)
+    if(imageFiles.length != 0){
+        imageLinks = await uploadImagesToStorageTemporary(imageFiles)
+    }
 
     // Run the model with uploaded image URLs
     console.log("starting generation ⭐️")
