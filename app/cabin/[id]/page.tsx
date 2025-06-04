@@ -46,10 +46,10 @@ export async function generateMetadata({
           version: "next",
           imageUrl: imageUrl,
           button: {
-            title: `Remix ${response?.collectionToken?.metadata.symbol} 🚀`,
+            title: `Remix ${response?.collectionToken?.metadata.symbol}`,
             action: {
               type: "launch_frame",
-              name: "Cabin",
+              name: "Off-Chain",
               url: `https://off-chain.vercel.app/cabin/${id}`,
             },
           },

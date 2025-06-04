@@ -108,10 +108,10 @@ export default function CabinDetailPage({ id }: { id: string }) {
 
   useEffect(() => {
     importFarcasterProfileImage();
-  }, [sdk.context]);
+  }, [context]);
 
   const importFarcasterProfileImage = async () => {
-    const res = (await sdk.context).user.pfpUrl;
+    const res = context!.user.pfpUrl;
     if (res != null) {
       setUserPFP(res);
     }
@@ -261,7 +261,7 @@ export default function CabinDetailPage({ id }: { id: string }) {
 
   if (loading || ipfsloading) {
     return (
-      <div className="flex items-center bg-black/50 justify-center h-screen text-white">
+      <div className="font-sans flex items-center bg-black/50 justify-center h-screen text-white">
         Loading...
       </div>
     );
