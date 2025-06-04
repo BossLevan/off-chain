@@ -112,6 +112,7 @@ export default function CabinDetailPage({ id }: { id: string }) {
 
   const importFarcasterProfileImage = async () => {
     const res = context!.user.pfpUrl;
+    console.log(res);
     if (res != null) {
       setUserPFP(res);
     }
@@ -230,6 +231,7 @@ export default function CabinDetailPage({ id }: { id: string }) {
       if (prompt) {
         setImageGenLoading(true);
         submitDataRef.current.append("prompt", prompt);
+        console.log(userPFP);
 
         //true: send the farcaster image else send nothing
         const response = userImportedFarcasterImage
