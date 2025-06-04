@@ -107,6 +107,7 @@ export default function CabinDetailPage({ id }: { id: string }) {
   }
 
   useEffect(() => {
+    console.log(context, "use effect logged");
     importFarcasterProfileImage();
   }, [context]);
 
