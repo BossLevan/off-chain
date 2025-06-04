@@ -62,7 +62,7 @@ export default function ImageModal({
 
       <div className="fixed inset-0 flex items-center justify-center p-4">
         <Dialog.Panel className="relative z-50 rounded-2xl p-6 w-full max-w-md bg-gray-900 text-gray-100 border border-gray-700 shadow-xl">
-          <div className="flex justify-between items-center mb-4">
+          <div className="font-sans flex justify-between items-center mb-4">
             <h3 className="font-medium text-lg">Image Preview</h3>
             <button
               onClick={onClose}
@@ -73,7 +73,7 @@ export default function ImageModal({
             </button>
           </div>
 
-          <div className="flex flex-col items-center gap-4">
+          <div className="font-sans flex flex-col items-center gap-4">
             <CanvasAnnotation
               ref={canvasRef}
               base64={imageUrl}

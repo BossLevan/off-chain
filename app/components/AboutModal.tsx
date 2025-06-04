@@ -12,7 +12,7 @@ export default function AboutModal({ isOpen, onClose }: AboutModalProps) {
       <div className="fixed inset-0 bg-black bg-opacity-60 backdrop-blur-sm" />
       <div className="fixed inset-0 flex items-center justify-center p-4">
         <Dialog.Panel className="relative z-50 max-w-lg w-full bg-zinc-900 text-white rounded-2xl p-6 shadow-lg">
-          <div className="flex justify-between items-center mb-4">
+          <div className="font-sans flex justify-between items-center mb-4">
             <Dialog.Title className="text-lg font-semibold">About</Dialog.Title>
             <button
               onClick={onClose}
@@ -23,7 +23,7 @@ export default function AboutModal({ isOpen, onClose }: AboutModalProps) {
           </div>
 
           {/* This is valid JSX */}
-          <div className="text-[13px] sm:text-[16px] leading-relaxed space-y-4">
+          <div className="font-sans text-[13px] sm:text-[16px] leading-relaxed space-y-4">
             <p>
               This project blends AI-generated art with web3-native identity,
               powered by $POLARIOD.

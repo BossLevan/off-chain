@@ -276,7 +276,7 @@ export default function CabinDetailPage({ id }: { id: string }) {
   }
 
   return (
-    <div className="flex flex-col h-screen bg-[#0E0E0E] text-white">
+    <div className="font-sans flex flex-col h-screen bg-[#090909] text-white">
       {/* <Head>
 
         <meta
@@ -327,10 +327,10 @@ export default function CabinDetailPage({ id }: { id: string }) {
               />
               <div className="flex flex-col justify-between flex-1 h-[100px] sm:h-[120px]">
                 <div>
-                  <h1 className="text-lg sm:text-2xl font-bold mb-1 sm:mb-2">
+                  <h1 className="text-lg sm:text-2xl font-bold mb-0.5 sm:mb-2">
                     {cabin.metadata.name}
                   </h1>
-                  <p className="text-gray-400 text-xs sm:text-base leading-relaxed sm:leading-normal line-clamp-2 sm:line-clamp-3 mb-2 sm:mb-4">
+                  <p className="text-gray-400 text-[13px] sm:text-base leading-relaxed sm:leading-normal line-clamp-2 sm:line-clamp-3 mb-2 sm:mb-4">
                     {cabin.metadata.description}
                   </p>
                   {/* 

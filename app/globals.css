@@ -38,6 +38,17 @@ body {
   }
 }
 
+@font-face {
+  font-family: 'ABCDiatypeRounded';
+  src: url('/fonts/ABCDiatypeRoundedVariable.woff2') format('woff2');
+  font-weight: 100 900; /* if it's a variable font */
+  font-style: normal;
+  font-display: swap;
+}
+html {
+  font-family: 'ABCDiatypeRounded', sans-serif;
+}
+
 /* @keyframes pulse {
   0% {
     opacity: 1;

@@ -74,10 +74,10 @@ export function TokenTile({ token }: TokenTileProps) {
           </div> */}
         </div>
         <div className="flex flex-col justify-between py-[2px] min-w-0 flex-1">
-          <div className="text-[12px] sm:text-[14px] font-header font-extralight text-blue-400">
+          <div className="text-[12px] sm:text-[14px]  text-blue-400">
             {marketCapUsd ?? "..."} MARKET CAP
           </div>
-          <div className="font-bold text-[18px] sm:text-[22px] mt-0.5 truncate">
+          <div className="font-bold text-[16px] sm:text-[22px]  truncate">
             {token.metadata.name}
           </div>
           <div className="text-[15px] sm:text-[18px] font-medium text-[#AAAAAA] truncate">

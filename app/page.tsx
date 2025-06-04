@@ -160,7 +160,7 @@ export default function App() {
   }, [searchParams]);
 
   return (
-    <div className="flex flex-col h-screen bg-[#0C0C0C] text-white">
+    <div className="font-sans flex flex-col h-screen bg-[#070707] text-white">
       {/* Header */}
       <header className="sticky top-0 bg-black z-10">
         <div className="safe-top" />
@@ -202,12 +202,8 @@ export default function App() {
       {/* Main */}
       <div className="flex-1 overflow-y-auto">
         <div className="w-full max-w-[480px] mx-auto px-4 pb-28">
-          <div className="flex items-center justify-between my-4">
-            <h1 className="text-[20px] md:text-2xl font-bold">Aesthetics</h1>
-          </div>
-
           <div className="flex space-x-2 mb-6">
-            {["Trending"].map((filter) => {
+            {["Trending", "New"].map((filter) => {
               const isActive = activeFilter === filter;
               return (
                 <div
@@ -229,6 +225,9 @@ export default function App() {
                 </div>
               );
             })}
+          </div>
+          <div className="flex items-center justify-between my-4">
+            <h1 className="text-[20px] md:text-2xl font-bold">Styles</h1>
           </div>
 
           {/* Loading State */}

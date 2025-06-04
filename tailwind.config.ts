@@ -10,7 +10,9 @@ const config: Config = {
     extend: {
       fontFamily: {
         header: ['"Instrument Sans"', 'sans-serif'], // key is 'header'
+        sans: ['"ABCDiatypeRounded"', 'sans-serif'], // set as default // add this line
       },
+      
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
