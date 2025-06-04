@@ -249,7 +249,7 @@ export default function App() {
 
           {/* Token List */}
           {!loading && !error && (
-            <div className={isMobile ? "space-y-3" : "space-y-2"}>
+            <div className={isMobile ? "space-y-4" : "space-y-2"}>
               {cabins?.map(
                 (cabin) =>
                   cabin.metadata != null && (
