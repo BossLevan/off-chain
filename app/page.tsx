@@ -235,7 +235,7 @@ export default function App() {
             <div className="flex justify-center items-center py-20 text-gray-400">
               <Loader2 className="animate-spin w-5 h-5 md:w-6 md:h-6 mr-2" />
               <span className="text-[13px] md:text-base">
-                Loading tokens...
+                Loading Styles...
               </span>
             </div>
           )}
