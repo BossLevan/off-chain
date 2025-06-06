@@ -44,7 +44,31 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="bg-background">
-        <Toaster position="top-center" />
+        <Toaster
+          position="top-center"
+          toastOptions={{
+            // Apply to all toasts
+
+            style: {
+              background: "#1a1a1a", // Dark background
+              color: "#fff",
+              fontFamily: "font-sans, sans-serif", // Replace with your font
+              fontSize: "14px",
+            },
+            success: {
+              iconTheme: {
+                primary: "#10b981", // Tailwind's green-500
+                secondary: "#1a1a1a",
+              },
+            },
+            error: {
+              iconTheme: {
+                primary: "#ef4444", // Tailwind's red-500
+                secondary: "#1a1a1a",
+              },
+            },
+          }}
+        />
         <Suspense>
           <Providers>{children}</Providers>
         </Suspense>

@@ -46,10 +46,10 @@ export async function generateMetadata({
           version: "next",
           imageUrl: imageUrl,
           button: {
-            title: `Generate your ${response?.collectionToken?.metadata.symbol}`,
+            title: `Join the ${response?.collectionToken?.metadata.symbol} Rave`,
             action: {
               type: "launch_frame",
-              name: "Off-Chain",
+              name: "raves.fun",
               url: `https://off-chain.vercel.app/cabin/${id}`,
             },
           },
