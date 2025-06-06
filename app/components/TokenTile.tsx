@@ -16,6 +16,12 @@ export function TokenTile({ token }: TokenTileProps) {
   const [marketCapUsd, setMarketCapUsd] = useState<string | null>(null);
   const [volumeUsd, setVolumeUsd] = useState<string | null>(null);
 
+  const participantImages = [
+    { url: "https://i.pravatar.cc/150?img=1", border: "border-[#141619]" },
+    { url: "https://i.pravatar.cc/150?img=2", border: "border-[#141619]" },
+    { url: "https://i.pravatar.cc/150?img=3", border: "border-[#141619]" },
+  ];
+
   useEffect(() => {
     let cancelled = false;
     async function fetchImage() {
@@ -54,7 +60,7 @@ export function TokenTile({ token }: TokenTileProps) {
   }, [token.marketCapETH, token.volumeETH]);
 
   return (
-    <div className="flex items-center justify-between bg-[#141619] rounded-[24px] p-3 sm:p-5">
+    <div className="flex items-center justify-between bg-white/5 backdrop-blur-md backdrop-saturate-150 border border-white/5 rounded-[24px] p-3 sm:p-5">
       <div className="flex space-x-3 sm:space-x-4 min-w-0 flex-1">
         <div className="relative w-[64px] h-[64px] sm:w-[80px] sm:h-[80px] flex-shrink-0">
           {loading ? (
@@ -77,19 +83,31 @@ export function TokenTile({ token }: TokenTileProps) {
           <div className="text-[12px] sm:text-[14px]  text-blue-400">
             {marketCapUsd ?? "..."} MARKET CAP
           </div>
-          <div className="font-bold text-[16px] sm:text-[22px]  truncate">
+          <div className="font-medium text-[16px] sm:text-[19px]  truncate">
             {token.metadata.name}
           </div>
-          <div className="text-[15px] sm:text-[18px] font-normal text-[#AAAAAA] truncate">
-            {token.metadata.description}
+          <div className="flex items-center gap-1">
+            <div className="flex -space-x-2">
+              {participantImages.map((participant, index) => (
+                <img
+                  key={index}
+                  src={participant.url}
+                  alt={`Participant ${index + 1}`}
+                  className={`sm:w-6 sm:h-6 w-5 h-5 rounded-full border-2 ${participant.border} object-cover`}
+                />
+              ))}
+            </div>
+            <div className="text-[15px] sm:text-[18px] font-normal text-[#AAAAAA] truncate">
+              +17K Participants
+            </div>
           </div>
         </div>
       </div>
       <Link
         href={`/cabin/${token.id}`}
-        className="text-blue-500 font-bold bg-[#1d2228] px-3 py-2 sm:px-4 sm:py-2.5 rounded-3xl flex-shrink-0 ml-2 sm:ml-4 text-sm sm:text-base"
+        className="text-blue-500 font-semibold bg-white/5 hover:bg-white/10 backdrop-blur-sm border-white/5 px-3 py-2 sm:px-4 sm:py-2.5 rounded-3xl flex-shrink-0 ml-2 sm:ml-4 text-sm sm:text-base transition"
       >
-        Open
+        Join
       </Link>
     </div>
   );

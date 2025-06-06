@@ -159,7 +159,7 @@ export default function CabinDetailPage({ id }: { id: string }) {
       const imageLink = await uploadImagesToStorageTemporary([annotatedImage]);
       const imageId = extractImageId(imageLink[0]);
       const shareLink = `https://off-chain.vercel.app/cabin/${id}?img=${encodeURIComponent(imageId!)}`;
-      const text = `${cabin?.metadata.symbol}`;
+      const text = `Just Joined the ${cabin?.metadata.symbol} Rave. You?`;
       await sdk.actions.composeCast({
         text,
         embeds: [shareLink],
@@ -607,7 +607,7 @@ export default function CabinDetailPage({ id }: { id: string }) {
             } transition-colors`}
             disabled={!uploadedImage}
           >
-            Remix {cabin.metadata.symbol}
+            Join {cabin.metadata.symbol}
           </button>
         </div>
         <div className="safe-bottom" />
@@ -621,7 +621,7 @@ export default function CabinDetailPage({ id }: { id: string }) {
 
             {/* Status text */}
             <span className="text-white text-sm font-medium">
-              Remixing Image...
+              Generating your Rave Identity...
             </span>
           </div>
         </div>

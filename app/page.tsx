@@ -5,6 +5,8 @@ import {
   useAddFrame,
   useOpenUrl,
 } from "@coinbase/onchainkit/minikit";
+import { TrendingUp, Sparkles } from "lucide-react";
+
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useAccount } from "wagmi";
 import toast from "react-hot-toast";
@@ -97,6 +99,13 @@ export default function App() {
   const { address } = useAccount();
   const searchParams = useSearchParams();
 
+  const filters = [
+    { label: "Trending", icon: TrendingUp },
+    { label: "New", icon: Sparkles },
+    { label: "$5K+" },
+    { label: "$10K" },
+  ];
+
   const { tokens: cabins, loading, error } = useTokens();
   const toastShownRef = useRef(false);
 
@@ -160,9 +169,15 @@ export default function App() {
   }, [searchParams]);
 
   return (
-    <div className="font-sans flex flex-col h-screen bg-[#070707] text-white">
+    <div
+      className="font-sans flex flex-col h-screen bg-repeat bg-left-top text-white"
+      style={{
+        backgroundImage: "url('/rave94.png')",
+        backgroundSize: "100px", // adjust to scale the image tile
+      }}
+    >
       {/* Header */}
-      <header className="sticky top-0 bg-black z-10">
+      <header className="sticky top-0 z-10 bg-black/1 backdrop-blur-sm  ">
         <div className="safe-top" />
         <div className="max-w-[480px] mx-auto px-4 py-5 flex justify-between items-center">
           <div className="flex items-center space-x-2">
@@ -199,51 +214,63 @@ export default function App() {
         </div>
       </header>
 
+      {/* Greeting Section */}
+      {/* <div className="w-full max-w-[480px] mx-auto px-4 pt-1 pb-1">
+        <div className="flex items-center space-x-2">
+          <img
+            src="/rave1.jpg"
+            alt="Profile"
+            className="w-8 h-8 rounded-full object-cover border-2 border-blue-500"
+          />
+          <h2 className="text-xl md:text-2xl font-semibold">Hey, Raver</h2>
+        </div>
+      </div> */}
+
       {/* Main */}
       <div className="flex-1 overflow-y-auto">
-        <div className="w-full max-w-[480px] mx-auto px-4 pb-28">
-          <div className="flex space-x-2 mb-6">
-            {["Trending", "New"].map((filter) => {
-              const isActive = activeFilter === filter;
+        <div className="w-full max-w-[480px] mx-auto px-4 pt-4 pb-28">
+          <div className="flex flex-wrap gap-2 mb-6">
+            {filters.map(({ label, icon: Icon }) => {
+              const isActive = activeFilter === label;
               return (
                 <div
-                  key={filter}
-                  onClick={() => setActiveFilter(filter)}
-                  className={`rounded-xl p-[1px] cursor-pointer transition-all ${
+                  key={label}
+                  onClick={() => setActiveFilter(label)}
+                  className={`rounded-xl p-[1.5px] cursor-pointer transition-all ${
                     isActive
                       ? "bg-gradient-to-br from-[#D500FF] via-[#04FF4F] to-[#F10509]"
                       : "bg-transparent"
                   }`}
                 >
                   <button
-                    className={`px-3 py-2 md:px-4 w-full rounded-[calc(0.75rem-1px)] font-medium bg-zinc-900 transition-colors text-[13px] md:text-base ${
+                    className={`px-3 py-2 md:px-4 rounded-[calc(0.75rem-1px)] font-medium bg-zinc-900 transition-colors text-[13px] md:text-base flex items-center space-x-2 ${
                       isActive ? "text-white" : "text-gray-400"
                     }`}
                   >
-                    {filter.charAt(0).toUpperCase() + filter.slice(1)}
+                    {Icon && <Icon className="w-4 h-4" />}
+                    <span>{label}</span>
                   </button>
                 </div>
               );
             })}
           </div>
+
           <div className="flex items-center justify-between my-4">
-            <h1 className="text-[20px] md:text-2xl font-bold">Styles</h1>
+            <h1 className="text-[20px] md:text-2xl font-bold">Raves</h1>
           </div>
 
           {/* Loading State */}
           {loading && (
             <div className="flex justify-center items-center py-20 text-gray-400">
               <Loader2 className="animate-spin w-5 h-5 md:w-6 md:h-6 mr-2" />
-              <span className="text-[13px] md:text-base">
-                Loading Styles...
-              </span>
+              <span className="text-[13px] md:text-base">Loading Raves...</span>
             </div>
           )}
 
           {/* Error State */}
           {error && (
             <div className="text-red-500 text-center py-20 text-[13px] md:text-base">
-              Error loading tokens: {error}
+              Error loading Raves: {error}
             </div>
           )}
 

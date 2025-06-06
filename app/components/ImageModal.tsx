@@ -3,6 +3,13 @@ import { X, Download } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import CanvasAnnotation, { CanvasAnnotationHandle } from "./CanvasAnnotoation";
 
+type Raver = {
+  id: string;
+  username: string;
+  avatarUrl: string;
+  followers: number;
+};
+
 type ImageModalProps = {
   isOpen: boolean;
   onClose: () => void;
@@ -27,22 +34,82 @@ export default function ImageModal({
   const canvasRef = useRef<CanvasAnnotationHandle>(null);
   const [hasSentImage, setHasSentImage] = useState(false);
 
-  // Send image once when modal opens
+  function getRandomGradient() {
+    const gradients = [
+      "from-pink-500 via-yellow-400 to-purple-500",
+      "from-green-400 via-blue-500 to-indigo-600",
+      "from-red-400 via-orange-300 to-yellow-500",
+      "from-teal-400 via-cyan-500 to-blue-500",
+      "from-fuchsia-500 via-red-500 to-amber-400",
+    ];
+    return gradients[Math.floor(Math.random() * gradients.length)];
+  }
+
+  const ravers: Raver[] = [
+    {
+      id: "1",
+      username: "jessepollak",
+      avatarUrl:
+        "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80&h=80&fit=crop",
+      followers: 1233,
+    },
+    {
+      id: "2",
+      username: "dwr",
+      followers: 45,
+      avatarUrl:
+        "https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=80&h=80&fit=crop",
+    },
+    {
+      id: "3",
+      username: "jacob",
+      followers: 90,
+      avatarUrl:
+        "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=80&h=80&fit=crop",
+    },
+    {
+      id: "4",
+      username: "notthreadguy",
+      followers: 303,
+      avatarUrl:
+        "https://images.unsplash.com/photo-1552058544-f2b08422138a?w=80&h=80&fit=crop",
+    },
+    {
+      id: "5",
+      username: "crytopoet",
+      followers: 490,
+      avatarUrl:
+        "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=80&h=80&fit=crop",
+    },
+    {
+      id: "6",
+      username: "jake",
+      followers: 303,
+      avatarUrl:
+        "https://images.unsplash.com/photo-1552058544-f2b08422138a?w=80&h=80&fit=crop",
+    },
+    {
+      id: "7",
+      username: "alex",
+      followers: 303,
+      avatarUrl:
+        "https://images.unsplash.com/photo-1552058544-f2b08422138a?w=80&h=80&fit=crop",
+    },
+  ];
+
   useEffect(() => {
     if (isOpen && !hasSentImage) {
       const timer = setTimeout(() => {
-        if (canvasRef.current) {
-          const img = canvasRef.current.getImage();
-          if (img) {
-            onImageReady(img);
-            setHasSentImage(true);
-          }
+        const img = canvasRef.current?.getImage();
+        if (img) {
+          onImageReady(img);
+          setHasSentImage(true);
         }
-      }, 500); // Wait for canvas to be ready
+      }, 500);
 
       return () => clearTimeout(timer);
     } else if (!isOpen) {
-      setHasSentImage(false); // Reset for next open
+      setHasSentImage(false);
     }
   }, [isOpen, hasSentImage, onImageReady]);
 
@@ -54,33 +121,82 @@ export default function ImageModal({
   };
 
   return (
-    <Dialog open={isOpen} onClose={onClose} className="relative z-50">
+    <Dialog
+      open={isOpen}
+      onClose={onClose}
+      className="fixed z-50 inset-0 overflow-y-auto"
+    >
       {/* Overlay */}
       {isOpen && (
         <div className="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm transition-opacity" />
       )}
 
-      <div className="fixed inset-0 flex items-center justify-center p-4">
-        <Dialog.Panel className="relative z-50 rounded-2xl p-6 w-full max-w-md bg-gray-900 text-gray-100 border border-gray-700 shadow-xl">
-          <div className="font-sans flex justify-between items-center mb-4">
-            <h3 className="font-medium text-lg">Image Preview</h3>
+      <div className="flex items-center justify-center min-h-screen px-4">
+        <Dialog.Panel className="relative z-10 bg-black border border-gray-700 rounded-xl p-6 max-w-2xl w-full mx-auto font-sans text-white">
+          <div className="relative flex justify-center items-center mb-4">
+            <h3 className="font-medium text-lg">Share your Identity, Raver</h3>
             <button
               onClick={onClose}
-              className="p-2 rounded-full bg-gray-700 text-gray-300 hover:bg-gray-600 hover:text-white"
-              aria-label="Close dialog"
+              className="absolute top-0 right-0 text-gray-400 hover:text-white"
             >
-              <X size={18} />
+              <X size={20} />
             </button>
           </div>
 
-          <div className="font-sans flex flex-col items-center gap-4">
+          <div className="flex flex-col items-center gap-4">
             <CanvasAnnotation
               ref={canvasRef}
               base64={imageUrl}
               vol={volume}
               mcap={mcap}
             />
+            {/* Ravers */}
+            <div className="w-full mt-2">
+              <h4 className="text-sm font-medium text-white mb-1">
+                Ravers (134)
+              </h4>
+              <h6 className="text-sm text-gray-500 mb-2">
+                Join 134 Others in the $AMBUSH Rave
+              </h6>
 
+              <div className="border border-gray-800 rounded-2xl bg-gray-950 backdrop-blur-sm px-0">
+                {ravers.length === 0 ? (
+                  <div className="min-h-[80px] flex items-center justify-center">
+                    <span className="text-sm text-gray-500 italic">
+                      Share to start this Rave
+                    </span>
+                  </div>
+                ) : (
+                  <div className="flex overflow-x-auto gap-2 pt-3 pb-3 scrollbar-thin w-full no-scrollbar px-3">
+                    {ravers.map((raver) => (
+                      <div
+                        key={raver.id}
+                        className="flex flex-col items-center text-xs text-center shrink-0"
+                      >
+                        <div
+                          className={`p-[0px] rounded-full bg-gradient-to-tr ${getRandomGradient()}`}
+                        >
+                          <img
+                            src={raver.avatarUrl}
+                            alt={raver.username}
+                            className="w-14 h-14 rounded-full bg-slate-900"
+                          />
+                        </div>
+
+                        <span className="mt-1 text-gray-300 truncate max-w-[56px]">
+                          {raver.username}
+                        </span>
+                        {/* <span className="text-[10px] text-gray-500 mt-0">
+                          {raver.followers.toLocaleString()} followers
+                        </span> */}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Actions */}
             <div className="flex flex-col sm:flex-row gap-3 mt-4 w-full">
               <button
                 onClick={handleDownload}
@@ -123,19 +239,19 @@ export default function ImageModal({
                 ) : (
                   <>
                     <img
-                      src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAAZlBMVEV8ZcH///93Xr96YsB4YMCUg8ujldK3rNu0qNpyWL1/acN1XL7u7PZ7Y8BwVrzz8fnAt+CNesjb1e2DbcT6+f3Vz+ppTLqRf8rHv+O8st7MxeWjlNKaic7n4/P19PpsULuvotfj3/HBCoTvAAAD70lEQVR4nO2d63qiMBRFOwlVIRKFar3S2vd/yZHpzA9rPbmwMbGz1wts1ockJ1efngghhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIyohib1IJPk7FJ7FdXv8amqmlIQxrSkIY0pCENaUjD/8ewvsE9DG8AFlTme/TohvpGsoIq6ufRRcJ51kDDuk6t8w3Y36ldpPa5YmGRgk9lm1roiraEGpplaqErlgZqWExSC10xwc7C1S+pha54AXeINrXQFdiG5tzUdKmNvtBhG5pzU7NPrfSFPbahOTc1s9RKX5ihp/uzq9ugNVtPdnUbemyRXd0Grtl6MqvbwDVbT2Z1G7hm68msbgPXbD2Z1W3omq2nTC11Af4zPH+I7bznLbHa25+naPGfYa9YnnlPXdvM3vvHGEXwEzVNbDhV48nR0MWqW29309lst113qx9nuNhPKlsao1ShlDGlrSb7uDIwS8PVsrGmuOzA6sLYZhvxKjM07A5WfT/S0coegqcOsjOcH61UXxX2OH9sw5N1DVS1PT2wYat9HkfVIQOzrAxP1q88rkNeY0aGq8a/tDKNd6uaj+GiChnBFZVv75iN4fxGD3ELrTzb1FwMFyZ0hFobv7eYieGqCp/N1JXXt5iJYRMzi1I0j2N4ihugGp9OIwvDNna21np0/VkY6th5sNpjd04Ohqf4Z1Du32kGhvMhKwrW2StmYHgcsuylj/kbdsMWhaxrSJzecOCCQnHI3XA1dF3POiqb5IbLoQ+gHKt4yQ2bocvr2lG7pTYELD47ltNTGwJ2uTh27qQ2BCzNOhabUxsCNtY7NscnNhzcV/TI/UViQ8h2OnmTYGLDNWJt1qwzNtxCDLcZG+4Q8WqXseEMYihGpDZE7FSSt7LScDA0BETQEBAhQUNABA0BERI0BETQEBAhQUNABA0BERI0BETQEBAhQUNABA0BERI0BETQEBAhQUNABA0BERI0BETQEBAhQUNABA0BERI0BETQEBAh8eMNtRXj3UdGfSLEDfszQIRAuVmKG5Y+lpty2M62+hzxIUV0y2aMWz/+pYu7lT5ZD1K8Q4SEz6GdAWeCAiJGeovObfR/OcR/KHr8CAnjeeR6wN0xd4iQKD3Psc7jf0N3iEgcT0MaDqJWr573kMxfIy8TP0d4GnaxEQJFMW097z1YradR/7QVEtHGRQgo57nAS47h9fEdIgRch5GuCT7/dIcIifBbhIPPJYRHfACbm5jrWQNPz8T8jQTwktaYK3Y3gTd/bMIjgBft0pCGD2AY2FXdyXDQyf9L6uo5mOC2dPQIOV8HE3zH0PgRhBBCCCGEEEIIIYQQQgghhBBCCCGEEEIIGZ/fAvZbw3/gJrkAAAAASUVORK5CYII="
+                      src="https://assets.deform.cc/production/c278ba11-ccfd-49dd-b4ed-5fbef8b56dc4.png"
                       alt="Farcaster"
-                      className="w-6 h-6 shrink-0"
+                      className="w-6 h-6 rounded-full shrink-0"
                     />
-                    Cast
+                    Share to Join the $AMBUSH Rave
                   </>
                 )}
               </button>
-
-              <p className="flex items-center justify-center text-xs text-center mt-2">
-                ⭐️ Earn coins when you share ⭐️
-              </p>
             </div>
+
+            {/* <p className="flex items-center justify-center text-xs text-center mt-2">
+              ⭐️ Earn coins when you share ⭐️
+            </p> */}
           </div>
         </Dialog.Panel>
       </div>
