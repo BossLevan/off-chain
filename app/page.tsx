@@ -173,7 +173,7 @@ export default function App() {
       className="font-sans flex flex-col h-screen bg-repeat bg-left-top text-white"
       style={{
         backgroundImage: "url('/rave94.png')",
-        backgroundSize: "100px", // adjust to scale the image tile
+        backgroundSize: "200px", // adjust to scale the image tile
       }}
     >
       {/* Header */}
@@ -195,7 +195,7 @@ export default function App() {
                 onClick={() => setIsAboutOpen(true)}
                 className="text-blue-500 font-bold bg-zinc-900 px-3 py-2 md:px-4 md:py-2.5 rounded-full text-sm md:text-base"
               >
-                About
+                How it Works
               </button>
               {saveFrameButton}
 

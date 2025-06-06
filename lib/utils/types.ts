@@ -14,6 +14,26 @@ export interface Token {
   };
 }
 
+export type User = {
+  displayName: string;
+  fid: number;
+  pfpUrl: string;
+  ravesCreated?: string[];
+  ravesJoined?: string[];
+  totalRaversOnboarded?: number;
+  username: string;
+  createdAt?: Date; // Clean Date types
+  updatedAt?: Date;
+};
+
+export type ContractUser = {
+  fid: number;
+  username: string;
+  pfpUrl: string;
+  joinedAt: Date; // Clean Date type
+};
+
+
 export type CollectionToken = {
   id: string;
   baseURI: string;

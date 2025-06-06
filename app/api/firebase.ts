@@ -1,12 +1,14 @@
-import { getFirestore, doc, setDoc, getDoc, updateDoc } from "firebase/firestore";
+import { getFirestore, doc, setDoc, getDoc, updateDoc, arrayUnion, serverTimestamp } from "firebase/firestore";
 import { getStorage, ref, uploadBytes, getDownloadURL, uploadString } from "firebase/storage";
 import { app } from "@/app/firebase_config"
 import { GraphQLClient } from "graphql-request";
-import { SingleCoinVolumeResponse } from "@/lib/utils/types";
+import { ContractUser, SingleCoinVolumeResponse, User } from "@/lib/utils/types";
 import { SINGLE_COIN_VOLUME_QUERY } from "@/lib/utils/queries";
 import { onSnapshot } from "firebase/firestore";
 import { convertStatToUsd, convertWeiToUsd } from "@/lib/utils/convertStatsToUsd";
 import { COST_PER_IMAGE } from "@/lib/constants";
+
+import { writeBatch, increment } from 'firebase/firestore';
 
 // Your Firestore and Storage refs
 const db = getFirestore(app, "off-chain");
@@ -102,6 +104,7 @@ export async function uploadImagesToStorage(
   }
 
 
+
 type UploadableImage = File | string;
 
 export async function uploadImagesToStorageTemporary(
@@ -132,7 +135,7 @@ export async function uploadImagesToStorageTemporary(
               source: "base64"
             }
           };
-          
+
 
           const snapshot = await uploadString(storageRef, base64Data, 'base64', metadata);
           return await getDownloadURL(snapshot.ref);
@@ -188,6 +191,87 @@ export async function getImageUrlFromId(id: string) {
     throw new Error(`Failed to get image: ${e?.message || 'Unknown error'}`);
   }
 }
+
+//Add User once logged in to Firestore
+//User Clicks Share: Add User & Contract Address of Token to UserJoined
+//any edit to user document should be done twice.
+//LATER: UserCreated 
+//increment totalRaversOnboarded when someone joins with your link.
+
+
+export async function handleUserJoinRave(
+    contractAddress: string,
+    user: User
+  ): Promise<void> {
+    const { fid, username, pfpUrl } = user;
+    const contractUserRef = doc(db, `/contracts/${contractAddress}/users/${fid}`);
+    const userRef = doc(db, `/users/${fid}`);
+    const contractRef = doc(db, `/contracts/${contractAddress}`);
+  
+    try {
+      // Run both operations in parallel
+      const [contractUserSnap, userSnap] = await Promise.all([
+        getDoc(contractUserRef),
+        getDoc(userRef)
+      ]);
+  
+      // Check if user is actually joining (not already in the rave)
+      const isNewContractUser = !contractUserSnap.exists();
+      const userData = userSnap.exists() ? userSnap.data() as User : null;
+      const ravesJoined = userData?.ravesJoined || [];
+      const isNewRaveForUser = !ravesJoined.includes(contractAddress);
+  
+      // Only proceed if user is actually joining
+      if (!isNewContractUser && !isNewRaveForUser) {
+        return; // User already in this rave
+      }
+  
+      // Use batch for atomic operations
+      const batch = writeBatch(db);
+  
+      // Handle contract user creation
+      if (isNewContractUser) {
+        const newContractUser = { 
+          fid, 
+          username, 
+          pfpUrl,
+          joinedAt: serverTimestamp() // Firebase handles this
+        };
+        batch.set(contractUserRef, newContractUser);
+        
+        // Increment user count only for new contract users
+        batch.update(contractRef, {
+          userCount: increment(1)
+        });
+      }
+  
+      // Handle user profile creation/update
+      if (!userSnap.exists()) {
+        const newUser = {
+          ...user,
+          ravesJoined: [contractAddress],
+          createdAt: serverTimestamp(),
+          updatedAt: serverTimestamp()
+        };
+        batch.set(userRef, newUser);
+      } else if (isNewRaveForUser) {
+        batch.update(userRef, {
+          ravesJoined: arrayUnion(contractAddress),
+          updatedAt: serverTimestamp()
+        });
+      }
+  
+      // Execute all operations atomically
+      await batch.commit();
+  
+    } catch (error) {
+      console.error(
+        `❌ Error handling user join for fid: ${fid}, contract: ${contractAddress}`,
+        error
+      );
+      throw new Error("Failed to handle user join. Check logs for details.");
+    }
+  } 
 
   
   /**

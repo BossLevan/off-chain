@@ -27,6 +27,7 @@ import { convertIpfsToPinataUrl } from "@/lib/utils/ipfs";
 import { useMiniKit, useOpenUrl } from "@coinbase/onchainkit/minikit";
 import { notifyBusinessManagerClient, generateAiImage } from "../api/client";
 import {
+  handleUserJoinRave,
   listenToNetCost,
   uploadImagesToStorageTemporary,
 } from "../api/firebase";
@@ -160,10 +161,22 @@ export default function CabinDetailPage({ id }: { id: string }) {
       const imageId = extractImageId(imageLink[0]);
       const shareLink = `https://off-chain.vercel.app/cabin/${id}?img=${encodeURIComponent(imageId!)}`;
       const text = `Just Joined the ${cabin?.metadata.symbol} Rave. You?`;
-      await sdk.actions.composeCast({
+      const castResponse = await sdk.actions.composeCast({
         text,
         embeds: [shareLink],
       });
+      //if the user casted
+      if (castResponse) {
+        //Join Rave (Firestore)
+        //Using it directly form firebase.ts -- try refactor to api later
+        const res = await handleUserJoinRave(id, {
+          fid: context!.user.fid,
+          pfpUrl: context!.user.pfpUrl ?? "",
+          displayName: context!.user.displayName ?? "",
+          username: context!.user.username!,
+        });
+        console.log("res", res);
+      }
       //View cast?
       setLoadingShareToFarcaster(false);
     } catch (e) {
