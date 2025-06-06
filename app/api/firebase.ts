@@ -1,4 +1,4 @@
-import { getFirestore, doc, setDoc, getDoc, updateDoc, arrayUnion, serverTimestamp } from "firebase/firestore";
+import { getFirestore, doc, setDoc, getDoc, updateDoc, arrayUnion, serverTimestamp, collection, where, orderBy, startAfter, limit, query, getDocs, QueryDocumentSnapshot } from "firebase/firestore";
 import { getStorage, ref, uploadBytes, getDownloadURL, uploadString } from "firebase/storage";
 import { app } from "@/app/firebase_config"
 import { GraphQLClient } from "graphql-request";
@@ -9,6 +9,21 @@ import { convertStatToUsd, convertWeiToUsd } from "@/lib/utils/convertStatsToUsd
 import { COST_PER_IMAGE } from "@/lib/constants";
 
 import { writeBatch, increment } from 'firebase/firestore';
+
+interface GetRaveUsersOptions {
+    sortBy?: 'joinedAt' | 'username';
+    sortOrder?: 'asc' | 'desc';
+    limit?: number;
+    startAfter?: QueryDocumentSnapshot;
+    joinedAfter?: Date;
+    joinedBefore?: Date;
+  }
+  
+  interface GetRaveUsersResult {
+    users: ContractUser[];
+    lastDoc?: QueryDocumentSnapshot;
+    hasMore: boolean;
+  }
 
 // Your Firestore and Storage refs
 const db = getFirestore(app, "off-chain");
@@ -529,3 +544,121 @@ export function listenToNetCost(
 
   return unsubscribe; // 🔁 Call this to stop listening when component unmounts
 }
+
+
+  
+  export async function getRaveUsers(
+    contractAddress: string,
+    options: GetRaveUsersOptions = {}
+  ): Promise<GetRaveUsersResult> {
+    const {
+      sortBy = 'joinedAt',
+      sortOrder = 'desc',
+      limit: userLimit = 50,
+      startAfter: startAfterDoc,
+      joinedAfter,
+      joinedBefore
+    } = options;
+  
+    try {
+      const usersCollectionRef = collection(db, `/contracts/${contractAddress}/users`);
+      
+      // Build query constraints
+      const constraints = [];
+      
+      // Add date filters if provided
+      if (joinedAfter) {
+        constraints.push(where('joinedAt', '>', joinedAfter));
+      }
+      if (joinedBefore) {
+        constraints.push(where('joinedAt', '<', joinedBefore));
+      }
+      
+      // Add ordering
+      constraints.push(orderBy(sortBy, sortOrder));
+      
+      // Add pagination
+      if (startAfterDoc) {
+        constraints.push(startAfter(startAfterDoc));
+      }
+      
+      // Add limit (get one extra to check if there are more)
+      constraints.push(limit(userLimit + 1));
+      
+      // Execute query
+      const querySnapshot = await getDocs(query(usersCollectionRef, ...constraints));
+      
+      // Process results
+      const users: ContractUser[] = [];
+      const docs = querySnapshot.docs;
+      
+      // Check if there are more results
+      const hasMore = docs.length > userLimit;
+      const actualDocs = hasMore ? docs.slice(0, -1) : docs;
+      
+      // Convert to ContractUser objects
+      actualDocs.forEach(doc => {
+        users.push(doc.data() as ContractUser);
+      });
+      
+      // Get last document for pagination
+      const lastDoc = actualDocs.length > 0 ? actualDocs[actualDocs.length - 1] : undefined;
+      
+      return {
+        users,
+        lastDoc,
+        hasMore
+      };
+      
+    } catch (error) {
+      console.error(`❌ Error getting users for contract: ${contractAddress}`, error);
+      throw new Error("Failed to get rave users. Check logs for details.");
+    }
+  }
+  
+  // Convenience function to get all users (use carefully for large raves)
+  export async function getAllRaveUsers(contractAddress: string): Promise<ContractUser[]> {
+    try {
+      const usersCollectionRef = collection(db, `/contracts/${contractAddress}/users`);
+      const querySnapshot = await getDocs(
+        query(usersCollectionRef, orderBy('joinedAt', 'desc'))
+      );
+      
+      return querySnapshot.docs.map(doc => doc.data() as ContractUser);
+      
+    } catch (error) {
+      console.error(`❌ Error getting all users for contract: ${contractAddress}`, error);
+      throw new Error("Failed to get all rave users. Check logs for details.");
+    }
+  }
+  
+  // Get recent joiners
+  export async function getRecentRaveJoiners(
+    contractAddress: string, 
+    days: number = 7,
+    limitCount: number = 20
+  ): Promise<ContractUser[]> {
+    const sinceDate = new Date();
+    sinceDate.setDate(sinceDate.getDate() - days);
+    
+    const result = await getRaveUsers(contractAddress, {
+      joinedAfter: sinceDate,
+      limit: limitCount,
+      sortBy: 'joinedAt',
+      sortOrder: 'desc'
+    });
+    
+    return result.users;
+  }
+  
+  // Get user count (fast)
+  export async function getRaveUserCount(contractAddress: string): Promise<number> {
+    try {
+      const contractDoc = await getDoc(doc(db, `/contracts/${contractAddress}`));
+      return contractDoc.data()?.userCount || 0;
+    } catch (error) {
+      console.error(`❌ Error getting user count for contract: ${contractAddress}`, error);
+      return 0;
+    }
+  }
+

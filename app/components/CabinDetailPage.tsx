@@ -38,6 +38,7 @@ import NetCostStatusTag from "./NetCostStatusTag";
 import { sdk } from "@farcaster/frame-sdk";
 import Link from "next/link";
 import { extractImageId } from "@/lib/utils/idFromUrl";
+import toast from "react-hot-toast";
 
 export default function CabinDetailPage({ id }: { id: string }) {
   // const params = useParams();
@@ -176,8 +177,11 @@ export default function CabinDetailPage({ id }: { id: string }) {
           username: context!.user.username!,
         });
         console.log("res", res);
+        //check for errors
+        toast.success("Successfully joined Rave");
       }
       //View cast?
+      //show success toast
       setLoadingShareToFarcaster(false);
     } catch (e) {
       setLoadingShareToFarcaster(false);
@@ -609,7 +613,7 @@ export default function CabinDetailPage({ id }: { id: string }) {
             >
               {uploadedImage ? "✓" : "○"}
             </span>
-            <span>Upload Required Image to app to remix</span>
+            <span>Upload Required Image to app to Join</span>
           </div>
           <button
             onClick={generateImage}
@@ -620,7 +624,7 @@ export default function CabinDetailPage({ id }: { id: string }) {
             } transition-colors`}
             disabled={!uploadedImage}
           >
-            Join {cabin.metadata.symbol}
+            Join {cabin.metadata.symbol} Rave
           </button>
         </div>
         <div className="safe-bottom" />
@@ -675,6 +679,8 @@ export default function CabinDetailPage({ id }: { id: string }) {
         onImageReady={setAnnotatedImage} // <-- this sets the state
         mcap={marketCapUsd}
         volume={volumeUsd}
+        contractAddress={id}
+        ticker={cabin.metadata.symbol}
       />
 
       <SwapModal

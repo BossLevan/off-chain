@@ -2,6 +2,9 @@ import { Dialog } from "@headlessui/react";
 import { X, Download } from "lucide-react";
 import React, { useEffect, useRef, useState } from "react";
 import CanvasAnnotation, { CanvasAnnotationHandle } from "./CanvasAnnotoation";
+import { getRaveUserCount, getRecentRaveJoiners } from "../api/firebase";
+import { ContractUser } from "@/lib/utils/types";
+import { getTimeAgo } from "@/lib/utils/formatDate";
 
 type Raver = {
   id: string;
@@ -18,6 +21,8 @@ type ImageModalProps = {
   loading: boolean;
   volume: string;
   mcap: string;
+  contractAddress: string;
+  ticker: string;
   onImageReady: (image: string) => void;
 };
 
@@ -30,9 +35,14 @@ export default function ImageModal({
   onImageReady,
   volume,
   mcap,
+  ticker,
+  contractAddress,
 }: ImageModalProps) {
   const canvasRef = useRef<CanvasAnnotationHandle>(null);
   const [hasSentImage, setHasSentImage] = useState(false);
+  const [ravers, setRavers] = useState<ContractUser[]>([]);
+  const [loadingRavers, setLoadingRavers] = useState(false);
+  const [raveUserCount, setRaveUserCount] = useState(0);
 
   function getRandomGradient() {
     const gradients = [
@@ -45,57 +55,57 @@ export default function ImageModal({
     return gradients[Math.floor(Math.random() * gradients.length)];
   }
 
-  const ravers: Raver[] = [
-    {
-      id: "1",
-      username: "jessepollak",
-      avatarUrl:
-        "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80&h=80&fit=crop",
-      followers: 1233,
-    },
-    {
-      id: "2",
-      username: "dwr",
-      followers: 45,
-      avatarUrl:
-        "https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=80&h=80&fit=crop",
-    },
-    {
-      id: "3",
-      username: "jacob",
-      followers: 90,
-      avatarUrl:
-        "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=80&h=80&fit=crop",
-    },
-    {
-      id: "4",
-      username: "notthreadguy",
-      followers: 303,
-      avatarUrl:
-        "https://images.unsplash.com/photo-1552058544-f2b08422138a?w=80&h=80&fit=crop",
-    },
-    {
-      id: "5",
-      username: "crytopoet",
-      followers: 490,
-      avatarUrl:
-        "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=80&h=80&fit=crop",
-    },
-    {
-      id: "6",
-      username: "jake",
-      followers: 303,
-      avatarUrl:
-        "https://images.unsplash.com/photo-1552058544-f2b08422138a?w=80&h=80&fit=crop",
-    },
-    {
-      id: "7",
-      username: "alex",
-      followers: 303,
-      avatarUrl:
-        "https://images.unsplash.com/photo-1552058544-f2b08422138a?w=80&h=80&fit=crop",
-    },
-  ];
+  //   const ravers: Raver[] = [
+  //     {
+  //       id: "1",
+  //       username: "jessepollak",
+  //       avatarUrl:
+  //         "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=80&h=80&fit=crop",
+  //       followers: 1233,
+  //     },
+  //     {
+  //       id: "2",
+  //       username: "dwr",
+  //       followers: 45,
+  //       avatarUrl:
+  //         "https://images.unsplash.com/photo-1502685104226-ee32379fefbe?w=80&h=80&fit=crop",
+  //     },
+  //     {
+  //       id: "3",
+  //       username: "jacob",
+  //       followers: 90,
+  //       avatarUrl:
+  //         "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=80&h=80&fit=crop",
+  //     },
+  //     {
+  //       id: "4",
+  //       username: "notthreadguy",
+  //       followers: 303,
+  //       avatarUrl:
+  //         "https://images.unsplash.com/photo-1552058544-f2b08422138a?w=80&h=80&fit=crop",
+  //     },
+  //     {
+  //       id: "5",
+  //       username: "crytopoet",
+  //       followers: 490,
+  //       avatarUrl:
+  //         "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=80&h=80&fit=crop",
+  //     },
+  //     {
+  //       id: "6",
+  //       username: "jake",
+  //       followers: 303,
+  //       avatarUrl:
+  //         "https://images.unsplash.com/photo-1552058544-f2b08422138a?w=80&h=80&fit=crop",
+  //     },
+  //     {
+  //       id: "7",
+  //       username: "alex",
+  //       followers: 303,
+  //       avatarUrl:
+  //         "https://images.unsplash.com/photo-1552058544-f2b08422138a?w=80&h=80&fit=crop",
+  //     },
+  //   ];
 
   useEffect(() => {
     if (isOpen && !hasSentImage) {
@@ -106,6 +116,22 @@ export default function ImageModal({
           setHasSentImage(true);
         }
       }, 500);
+      const getRavers = async () => {
+        try {
+          setLoadingRavers(true);
+          const ravers = await getRecentRaveJoiners(contractAddress);
+          console.log(ravers[0].joinedAt);
+          //get raver count
+          const raverCount = await getRaveUserCount(contractAddress);
+          setRaveUserCount(raverCount);
+          setRavers(ravers);
+          setLoadingRavers(false);
+        } catch (e) {
+          setLoadingRavers(false);
+          console.error(e);
+        }
+      };
+      getRavers();
 
       return () => clearTimeout(timer);
     } else if (!isOpen) {
@@ -153,16 +179,16 @@ export default function ImageModal({
             {/* Ravers */}
             <div className="w-full mt-2">
               <h4 className="text-sm font-medium text-white mb-1">
-                Ravers (134)
+                Ravers ({raveUserCount})
               </h4>
               <h6 className="text-sm text-gray-500 mb-2">
-                Join 134 Others in the $AMBUSH Rave
+                Join {raveUserCount} Others in the {ticker} Rave
               </h6>
 
               <div className="border border-gray-800 rounded-2xl bg-gray-950 backdrop-blur-sm px-0">
-                {ravers.length === 0 ? (
+                {ravers.length === 0 || loadingRavers ? (
                   <div className="min-h-[80px] flex items-center justify-center">
-                    <span className="text-sm text-gray-500 italic">
+                    <span className="text-sm text-gray-500">
                       Share to start this Rave
                     </span>
                   </div>
@@ -170,25 +196,25 @@ export default function ImageModal({
                   <div className="flex overflow-x-auto gap-2 pt-3 pb-3 scrollbar-thin w-full no-scrollbar px-3">
                     {ravers.map((raver) => (
                       <div
-                        key={raver.id}
+                        key={raver.fid}
                         className="flex flex-col items-center text-xs text-center shrink-0"
                       >
                         <div
                           className={`p-[0px] rounded-full bg-gradient-to-tr ${getRandomGradient()}`}
                         >
                           <img
-                            src={raver.avatarUrl}
+                            src={raver.pfpUrl}
                             alt={raver.username}
-                            className="w-14 h-14 rounded-full bg-slate-900"
+                            className="w-14 h-14 rounded-full bg-slate-900 object-cover"
                           />
                         </div>
 
                         <span className="mt-1 text-gray-300 truncate max-w-[56px]">
                           {raver.username}
                         </span>
-                        {/* <span className="text-[10px] text-gray-500 mt-0">
-                          {raver.followers.toLocaleString()} followers
-                        </span> */}
+                        <span className="text-[10px] text-green-500 -mt-0.5 truncate max-w-[56px]">
+                          {getTimeAgo(raver.joinedAt)}
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -243,7 +269,7 @@ export default function ImageModal({
                       alt="Farcaster"
                       className="w-6 h-6 rounded-full shrink-0"
                     />
-                    Share to Join the $AMBUSH Rave
+                    Share to Join the {ticker} Rave
                   </>
                 )}
               </button>
