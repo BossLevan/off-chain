@@ -58,7 +58,7 @@ export function TokenTile({ token }: TokenTileProps) {
     }
     convertStats();
   }, [token.marketCapETH, token.volumeETH]);
-
+  //bg-blue-500/5
   return (
     <div className="flex items-center justify-between bg-white/5 backdrop-blur-md backdrop-saturate-150 border border-white/5 rounded-[24px] p-3 sm:p-5">
       <div className="flex space-x-3 sm:space-x-4 min-w-0 flex-1">
@@ -105,7 +105,7 @@ export function TokenTile({ token }: TokenTileProps) {
       </div>
       <Link
         href={`/cabin/${token.id}`}
-        className="text-blue-500 font-semibold bg-white/5 hover:bg-white/10 backdrop-blur-sm border-white/5 px-3 py-2 sm:px-4 sm:py-2.5 rounded-3xl flex-shrink-0 ml-2 sm:ml-4 text-sm sm:text-base transition"
+        className="text-blue-500 font-semibold bg-white/0 hover:bg-white/10 backdrop-blur-sm border-white/5 px-3 py-2 sm:px-4 sm:py-2.5 rounded-3xl flex-shrink-0 ml-2 sm:ml-4 text-sm sm:text-base transition"
       >
         Join
       </Link>
