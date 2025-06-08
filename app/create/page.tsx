@@ -68,8 +68,8 @@ export default function CreateCabin() {
       case "prompt":
         if (!value) return "Prompt is required";
         // if (value.length < 20) return "Prompt must be at least 20 characters";
-        if (value.length > 500)
-          return "Prompt must be less than 500 characters";
+        // if (value.length > 500)
+        //   return "Prompt must be less than 500 characters";
         return "";
       case "mainImage":
         if (!value) return "Main image is required";

@@ -5,7 +5,7 @@ import { gql } from 'graphql-request';
 export const ALL_COLLECTIONS_QUERY_BY_MARKETCAP = gql`
 query getAllCollectionTokens {
   collectionTokens(
-    where: { collection_: {manager: "0xf83957b6c358ee2d02d9d07b31158acb7fe6e3db"}}
+    where: { collection_: {manager: "0x3119C7b33e29243B14b7E465102b10875B21c212"}}
   ) {
     baseURI
     createdAt
