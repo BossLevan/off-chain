@@ -662,3 +662,33 @@ export function listenToNetCost(
     }
   }
 
+  type RaveSummary = {
+    totalRavers: number;
+    recentRavers: ContractUser[];
+  };
+  
+  export async function getRaveSummary(
+    contractAddress: string,
+    recentLimit: number = 3,
+    days: number = 7
+  ): Promise<RaveSummary> {
+    try {
+      const [count, recentRavers] = await Promise.all([
+        getRaveUserCount(contractAddress),
+        getRecentRaveJoiners(contractAddress, days, recentLimit)
+      ]);
+  
+      return {
+        totalRavers: count,
+        recentRavers
+      };
+    } catch (error) {
+      console.error("❌ Error fetching rave summary:", error);
+      return {
+        totalRavers: 0,
+        recentRavers: []
+      };
+    }
+  }
+  
+

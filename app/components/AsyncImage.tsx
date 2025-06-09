@@ -47,9 +47,8 @@ export default function AsyncTokenImage({
         <Image
           src={imageUrl || "/placeholder.svg"}
           alt={alt}
-          width={size}
-          height={size}
-          className="object-cover"
+          fill
+          className="object-cover w-full h-full"
         />
       )}
     </div>

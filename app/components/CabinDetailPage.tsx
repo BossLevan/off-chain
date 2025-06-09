@@ -161,7 +161,7 @@ export default function CabinDetailPage({ id }: { id: string }) {
       const imageLink = await uploadImagesToStorageTemporary([annotatedImage]);
       const imageId = extractImageId(imageLink[0]);
       const shareLink = `https://off-chain.vercel.app/cabin/${id}?img=${encodeURIComponent(imageId!)}`;
-      const text = `Just Joined the ${cabin?.metadata.symbol} Rave. You?`;
+      const text = `Just joined the ${cabin?.metadata.symbol} Rave`;
       const castResponse = await sdk.actions.composeCast({
         text,
         embeds: [shareLink],
@@ -183,9 +183,12 @@ export default function CabinDetailPage({ id }: { id: string }) {
       //View cast?
       //show success toast
       setLoadingShareToFarcaster(false);
+      setIsModalOpen(false);
+      submitDataRef.current.delete("images");
     } catch (e) {
       setLoadingShareToFarcaster(false);
       console.error("An error occurred:", e);
+      submitDataRef.current.delete("images");
     }
   };
   const sharePage = async () => {
@@ -273,6 +276,37 @@ export default function CabinDetailPage({ id }: { id: string }) {
       setImageGenError(true);
       //remove the uploaded image
       setUploadedImage(null);
+      submitDataRef.current.delete("images");
+    }
+  };
+
+  const copyToClipboard = () => {
+    if (navigator.clipboard) {
+      navigator.clipboard
+        .writeText(id)
+        .then(() => {
+          toast.success("Copied CA");
+        })
+        .catch((err) => {
+          console.error("Failed to copy: ", err);
+        });
+    } else {
+      // Fallback for older browsers
+      const textArea = document.createElement("textarea");
+      textArea.value = id;
+      textArea.style.position = "fixed"; // Avoid scrolling to bottom
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+
+      try {
+        document.execCommand("copy");
+        console.log("Copied to clipboard (fallback)");
+      } catch (err) {
+        console.error("Fallback: Copy failed", err);
+      }
+
+      document.body.removeChild(textArea);
     }
   };
 
@@ -359,10 +393,11 @@ export default function CabinDetailPage({ id }: { id: string }) {
                 {/* Buttons - Same layout for mobile and desktop */}
                 <div className="grid grid-cols-2 gap-2">
                   <button
-                    onClick={() => setIsSwapModalOpen(true)}
+                    // onClick={() => setIsSwapModalOpen(true)}
+                    onClick={copyToClipboard}
                     className="bg-[#1a1f28] text-white py-2 sm:py-3 px-3 rounded-full font-medium text-xs sm:text-sm"
                   >
-                    Swap
+                    Copy
                   </button>
                   <button
                     onClick={() => {

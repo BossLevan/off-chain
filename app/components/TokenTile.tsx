@@ -3,17 +3,25 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import UpArrow from "@/app/components/UpArrow";
 import { convertIpfsToPinataUrl } from "@/lib/utils/ipfs";
-import { Token } from "@/lib/utils/types";
+import { ContractUser, Token } from "@/lib/utils/types";
 import { convertStatToUsd } from "@/lib/utils/convertStatsToUsd";
+import { getRaveSummary } from "../api/firebase";
 
 type TokenTileProps = {
   token: Token;
+  contract: string;
 };
 
-export function TokenTile({ token }: TokenTileProps) {
+type RaveSummary = {
+  totalRavers: number;
+  recentRavers: ContractUser[];
+};
+
+export function TokenTile({ token, contract }: TokenTileProps) {
   const [imageUrl, setImageUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [marketCapUsd, setMarketCapUsd] = useState<string | null>(null);
+  const [raveSummary, setRaveSummary] = useState<RaveSummary>();
   const [volumeUsd, setVolumeUsd] = useState<string | null>(null);
 
   const participantImages = [
@@ -30,6 +38,9 @@ export function TokenTile({ token }: TokenTileProps) {
         const url = await convertIpfsToPinataUrl(token.baseURI);
         if (!cancelled) {
           setImageUrl(url);
+          //get the rave joiners
+          const summary = await getRaveSummary(contract);
+          setRaveSummary(summary);
           setLoading(false);
         }
       } catch (err) {
@@ -88,18 +99,45 @@ export function TokenTile({ token }: TokenTileProps) {
           </div>
           <div className="flex items-center gap-1">
             <div className="flex -space-x-2">
-              {participantImages.map((participant, index) => (
-                <img
-                  key={index}
-                  src={participant.url}
-                  alt={`Participant ${index + 1}`}
-                  className={`sm:w-6 sm:h-6 w-5 h-5 rounded-full border-2 ${participant.border} object-cover`}
-                />
-              ))}
+              {raveSummary?.recentRavers
+                .slice(0, 3)
+                .map((participant, index) => (
+                  <img
+                    key={index}
+                    src={participant.pfpUrl}
+                    alt={`Participant ${index + 1}`}
+                    className={`sm:w-6 sm:h-6 w-4 h-4 rounded-full mb-0.5 object-cover`}
+                  />
+                ))}
             </div>
-            <div className="text-[15px] sm:text-[18px] font-normal text-[#AAAAAA] truncate">
-              +17K Participants
-            </div>
+
+            {typeof raveSummary?.totalRavers === "number" &&
+              raveSummary.totalRavers > 3 && (
+                <div className="text-[15px] sm:text-[18px] font-normal text-gray-500 truncate">
+                  +{raveSummary.totalRavers - 3} more
+                </div>
+              )}
+
+            {typeof raveSummary?.totalRavers === "number" &&
+              raveSummary.totalRavers > 0 &&
+              raveSummary.totalRavers <= 3 && (
+                <div className="text-[15px] sm:text-[18px] font-normal text-green-500 truncate">
+                  Joined
+                </div>
+              )}
+
+            {typeof raveSummary?.totalRavers === "number" &&
+              raveSummary.totalRavers === 0 && (
+                <div className="text-[14px] sm:text-[18px] font-normal text-gray-500 -ml-1 truncate">
+                  No participants yet
+                </div>
+              )}
+
+            {raveSummary?.totalRavers === undefined && (
+              <div className="text-[14px] sm:text-[18px] font-normal text-gray-500 -ml-1 truncate">
+                Loading...
+              </div>
+            )}
           </div>
         </div>
       </div>

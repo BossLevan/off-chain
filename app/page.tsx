@@ -181,13 +181,17 @@ export default function App() {
         <div className="safe-top" />
         <div className="max-w-[480px] mx-auto px-4 py-5 flex justify-between items-center">
           <div className="flex items-center space-x-2">
-            <ArrowUpCircle className="w-5 h-5 md:w-6 md:h-6 text-orange-500" />
-            <span className="text-[16px] md:text-xl font-medium">
-              Off-Chain
-              <span className="text-[0.8em] md:text-[1.0em] align-[0.25em] ml-0.5">
-                ™
+            {/* <ArrowUpCircle className="w-5 h-5 md:w-6 md:h-6 text-orange-500" /> */}
+            <div className="flex items-center space-x-2">
+              <img
+                src="/logo.png"
+                alt="Logo"
+                className="w-5 h-5 md:w-6 md:h-6 border border-white/5 rounded"
+              />
+              <span className="font-shrikhand text-[16px] md:text-xl font-medium">
+                RAVES
               </span>
-            </span>
+            </div>
           </div>
           <div className="flex space-x-3 md:space-x-4">
             <>
@@ -280,7 +284,11 @@ export default function App() {
               {cabins?.map(
                 (cabin) =>
                   cabin.metadata != null && (
-                    <TokenTile key={cabin.id} token={cabin} />
+                    <TokenTile
+                      key={cabin.id}
+                      token={cabin}
+                      contract={cabin.id}
+                    />
                   ),
               )}
             </div>

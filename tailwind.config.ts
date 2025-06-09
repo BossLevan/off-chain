@@ -11,6 +11,7 @@ const config: Config = {
       fontFamily: {
         header: ['"Instrument Sans"', 'sans-serif'], // key is 'header'
         sans: ['"ABCDiatypeRounded"', 'sans-serif'], // set as default // add this line
+        shrikhand: ['Shrikhand', 'cursive'],
       },
       
       colors: {
