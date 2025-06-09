@@ -188,7 +188,7 @@ export default function App() {
                 alt="Logo"
                 className="w-5 h-5 md:w-6 md:h-6 border border-white/5 rounded"
               />
-              <span className="font-shrikhand text-[16px] md:text-xl font-medium">
+              <span className="font-fugaz text-[16px] md:text-xl font-medium">
                 RAVES
               </span>
             </div>

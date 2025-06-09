@@ -121,8 +121,9 @@ export function TokenTile({ token, contract }: TokenTileProps) {
             {typeof raveSummary?.totalRavers === "number" &&
               raveSummary.totalRavers > 0 &&
               raveSummary.totalRavers <= 3 && (
-                <div className="text-[15px] sm:text-[18px] font-normal text-green-500 truncate">
-                  Joined
+                <div className="text-[14px] sm:text-[18px] font-normal text-gray-500 ml-0.5 truncate">
+                  {"   "}
+                  {raveSummary.totalRavers} participants
                 </div>
               )}
 
